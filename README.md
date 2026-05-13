@@ -1,6 +1,10 @@
 # test-team-please-ignore
 
-This is a project adding rust snapd bindings and using them to make cool things
+## snapd-rs
+
+Rust bindings for snapd. This allows applications in Rust to talk directly to snapd without writing their own API layer.
+
+We use AI to generate the endpoint implementations and Rust types.
 
 ## setup
 For megademo.ai. The agent has access to snapd source, so please use
