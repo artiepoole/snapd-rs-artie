@@ -1,0 +1,101 @@
+use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
+
+use crate::{client::SnapdClient, error::Result, types::ChangeId};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct Interface {
+    pub name: String,
+    pub summary: Option<String>,
+    pub doc_url: Option<String>,
+    #[serde(default)]
+    pub plugs: Vec<Plug>,
+    #[serde(default)]
+    pub slots: Vec<Slot>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Plug {
+    pub snap: Option<String>,
+    pub plug: String,
+    pub interface: Option<String>,
+    pub attrs: Option<Value>,
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Slot {
+    pub snap: Option<String>,
+    pub slot: String,
+    pub interface: Option<String>,
+    pub attrs: Option<Value>,
+    pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Connection {
+    pub plug: PlugRef,
+    pub slot: SlotRef,
+    pub interface: Option<String>,
+    pub gadget: Option<bool>,
+    pub manual: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlugRef {
+    pub snap: String,
+    pub plug: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SlotRef {
+    pub snap: String,
+    pub slot: String,
+}
+
+impl SnapdClient {
+    pub async fn list_interfaces(&self) -> Result<Vec<Interface>> {
+        self.get("/v2/interfaces?select=connected").await
+    }
+
+    pub async fn list_connections(&self) -> Result<Vec<Connection>> {
+        self.get("/v2/connections").await
+    }
+
+    pub async fn connect_interface(
+        &self,
+        plug_snap: &str,
+        plug_name: &str,
+        slot_snap: &str,
+        slot_name: &str,
+    ) -> Result<ChangeId> {
+        self.post_async(
+            "/v2/interfaces",
+            &json!({
+                "action": "connect",
+                "plugs": [{ "snap": plug_snap, "plug": plug_name }],
+                "slots": [{ "snap": slot_snap, "slot": slot_name }],
+            }),
+        )
+        .await
+    }
+
+    pub async fn disconnect_interface(
+        &self,
+        plug_snap: &str,
+        plug_name: &str,
+        slot_snap: &str,
+        slot_name: &str,
+    ) -> Result<ChangeId> {
+        self.post_async(
+            "/v2/interfaces",
+            &json!({
+                "action": "disconnect",
+                "plugs": [{ "snap": plug_snap, "plug": plug_name }],
+                "slots": [{ "snap": slot_snap, "slot": slot_name }],
+            }),
+        )
+        .await
+    }
+}

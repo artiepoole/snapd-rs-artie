@@ -1,9 +1,10 @@
 [package]
 name = "snap-rat"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
-crossterm = "0.29.0"
-ratatui = "0.30.0"
-snapd-rs = { version = "0.1.0", path = "../snapd-rs" }
+ratatui.workspace = true
+crossterm.workspace = true
+snapd-rs.workspace = true
+tokio.workspace = true

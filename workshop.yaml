@@ -4,7 +4,6 @@ sdks:
   # for rust bindings
   - name: rust
     channel: latest/stable
-
   # various options for LLM harnesses
   - name: opencode
     channel: latest/stable
@@ -19,7 +18,6 @@ sdks:
       lemonade: # local lemonade-server instance
         interface: tunnel
         endpoint: localhost:13305
-
 actions:
   snapcraft: snapcraft
   # various options for LLM harnesses
