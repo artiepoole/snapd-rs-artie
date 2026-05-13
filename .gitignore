@@ -9,6 +9,3 @@ snapd/
 # workshop extras
 .workshop.lock
 
-# IDE
-.idea/
-token

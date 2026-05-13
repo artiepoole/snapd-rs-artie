@@ -1,51 +1,49 @@
-# snapd-rs: Rust bindings for snapd
+# test-team-please-ignore
 
-A Canonical AI Hackathon project providing Rust bindings for the snapd daemon. Interact with snap packages programmatically instead of shelling out to CLI commands.
+This is a project adding rust snapd bindings and using them to make cool things
 
-## What are snapd bindings?
+## setup
+For megademo.ai. The agent has access to snapd source, so please use
+```
+git clone git@github.com:canonical/snapd.git
+```
 
-Rust wrappers around the snapd REST API. Instead of making HTTP calls by hand, use type-safe functions to query snaps, install/remove packages, and interact with the snapd system.
+to add snapd as a subdir.
 
-## What is workshop?
 
-[Workshop](https://github.com/canonical/workshop) manages development environments and integrates with AI assistants. It handles setup, provides quick-access commands, and containerizes your workspace.
-
-## Setup
-
-### Prerequisites
-
-Update LXD to version 6 and install workshop:
-```bash
+to update snapd to use 6 in order for workshop to work.
+```
 sudo snap refresh --channel=6/stable lxd
+```
+and install workshop
+```
 sudo snap install workshop --channel=latest/edge
 ```
-
-### Initialize the project
-
-```bash
+then to initialise
+```
 workshop launch
 ```
-
-### Using the workshop shell
-
-Enter an interactive shell:
-```bash
+and finally
+```
 workshop shell
 > copilot
 ```
-
-Or run commands directly:
-```bash
+to enter the shell tool or alternatively
+```
 # Run copilot interactively
 workshop run copilot
-
-# Run copilot with a prompt
+# Run copilot with a given prompt
 workshop run copilot-prompt <prompt>
-
-# Example
+# E.g.
 workshop run copilot-prompt how many times does the letter p occur in raspberry?
 ```
+to go yolo mode.
 
-## Quick Reference
 
-For available workshop commands, see `workshop.yaml`.
+# workshop usage
+
+```
+workshop launch
+```
+
+To see the list of all workshop quick actions, see `workshop.yaml`.

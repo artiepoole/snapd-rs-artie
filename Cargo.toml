@@ -1,6 +1,5 @@
 [workspace]
-members = [
+members = ["snap-rat",
     "snapd-rs",
-    "snap-rat",
 ]
 resolver = "2"
