@@ -1,0 +1,6 @@
+# snapd source
+snapd/
+
+# workshop extras
+.workshop.lock
+
