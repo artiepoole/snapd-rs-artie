@@ -3,11 +3,7 @@ name: CI - snapd-rs Tests
 
 on:
   pull_request:
-    branches:
-      - main
-      - 'doardo/**'
-      - 'artie/**'
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 env:
   RUST_BACKTRACE: 1
