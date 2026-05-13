@@ -2,6 +2,7 @@
 members = [
     "snapd-rs",
     "snap-rat",
+    "libprompting",
 ]
 resolver = "2"
 
