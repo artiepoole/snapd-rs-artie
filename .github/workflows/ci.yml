@@ -7,11 +7,6 @@ on:
       - main
       - 'doardo/**'
       - 'artie/**'
-    paths:
-      - 'snapd-rs/**'
-      - '.github/workflows/ci.yml'
-      - 'Cargo.lock'
-      - 'Cargo.toml'
 
 env:
   RUST_BACKTRACE: 1
