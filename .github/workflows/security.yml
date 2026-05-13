@@ -1,0 +1,38 @@
+name: Security Audit
+
+on:
+  push:
+    branches:
+      - main
+      - 'doardo/**'
+      - 'artie/**'
+    paths:
+      - 'snapd-rs/Cargo.lock'
+      - 'snapd-rs/Cargo.toml'
+      - '.github/workflows/security.yml'
+  pull_request:
+    branches:
+      - main
+      - 'artie/**'
+    paths:
+      - 'snapd-rs/Cargo.lock'
+      - 'snapd-rs/Cargo.toml'
+  schedule:
+    # Run security checks weekly
+    - cron: '0 0 * * 0'
+
+jobs:
+  audit:
+    name: Cargo Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Run cargo audit
+        working-directory: snapd-rs
+        run: cargo audit

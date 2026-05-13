@@ -1,9 +1,10 @@
 [package]
 name = "snap-rat"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-crossterm = "0.29.0"
-ratatui = "0.30.0"
-snapd-rs = { version = "0.1.0", path = "../snapd-rs" }
+ratatui = "0.30"
+crossterm = "0.29"
+snapd-rs = { path = "../snapd-rs" }
+tokio = { version = "1", features = ["full"] }

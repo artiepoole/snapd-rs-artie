@@ -1,3 +1,3 @@
 fn main() {
-    println!("Hello, world!");
+    println!("snap-rat: snapd TUI (not yet implemented)");
 }
