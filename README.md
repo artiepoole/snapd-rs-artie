@@ -23,14 +23,19 @@ then to initialise
 ```
 workshop launch
 ```
-and finally 
+and finally
 ```
 workshop shell
 > copilot
 ```
 to enter the shell tool or alternatively
 ```
-workshop copilot <prompt> 
+# Run copilot interactively
+workshop run copilot
+# Run copilot with a given prompt
+workshop run copilot-prompt <prompt>
+# E.g.
+workshop run copilot-prompt how many times does the letter p occur in raspberry?
 ```
 to go yolo mode.
 
@@ -40,3 +45,5 @@ to go yolo mode.
 ```
 workshop launch
 ```
+
+To see the list of all workshop quick actions, see `workshop.yaml`.
