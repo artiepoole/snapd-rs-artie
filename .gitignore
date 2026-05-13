@@ -5,6 +5,7 @@ Cargo.lock
 
 # snapd source
 snapd/
+app-center/
 
 # workshop extras
 .workshop.lock

@@ -6,9 +6,10 @@ This is a project adding rust snapd bindings and using them to make cool things
 For megademo.ai. The agent has access to snapd source, so please use
 ```
 git clone git@github.com:canonical/snapd.git
+git clone git@github.com:ubuntu/app-center.git
 ```
 
-to add snapd as a subdir.
+to add snapd and appcenter as a subdir.
 
 
 to update snapd to use 6 in order for workshop to work.
