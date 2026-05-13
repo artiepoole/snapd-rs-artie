@@ -1,0 +1,5 @@
+[workspace]
+members = ["snap-rat",
+    "snapd-rs",
+]
+resolver = "2"
