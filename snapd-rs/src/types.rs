@@ -1,5 +1,8 @@
-use serde::{Deserialize, Serialize};
+use std::str::FromStr;
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
+use strum::{Display, EnumIter, EnumString, IntoStaticStr, VariantNames};
 
 // --- Wire-protocol types ---
 
@@ -163,8 +166,10 @@ pub enum ValidationSetMode {
 }
 
 /// Notice type.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Display, EnumString, IntoStaticStr, EnumIter, VariantNames,
+)]
+#[strum(serialize_all = "kebab-case")]
 #[non_exhaustive]
 pub enum NoticeType {
     SnapRunInhibit,
@@ -173,6 +178,36 @@ pub enum NoticeType {
     ChangeUpdate,
     Warning,
     RefreshInhibit,
+}
+
+impl NoticeType {
+    pub fn as_str(&self) -> &'static str {
+        (*self).into()
+    }
+}
+
+impl Serialize for NoticeType {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for NoticeType {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::from_str(&value).map_err(|_| {
+            serde::de::Error::unknown_variant(
+                &value,
+                &<NoticeType as strum::VariantNames>::VARIANTS,
+            )
+        })
+    }
 }
 
 /// Prompt rule outcome.
@@ -193,4 +228,39 @@ pub enum PromptLifespan {
     Session,
     Forever,
     Timespan,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::NoticeType;
+    use strum::IntoEnumIterator;
+
+    #[test]
+    fn notice_type_variants_constant_matches_enum_iteration() {
+        let iterated_variants: Vec<_> = NoticeType::iter()
+            .map(|notice_type| notice_type.as_str())
+            .collect();
+
+        assert_eq!(
+            iterated_variants,
+            <NoticeType as strum::VariantNames>::VARIANTS
+        );
+    }
+
+    #[test]
+    fn notice_type_display_and_serde_cover_all_variants() {
+        for notice_type in NoticeType::iter() {
+            let expected = notice_type.as_str();
+
+            assert_eq!(notice_type.to_string(), expected);
+            assert_eq!(
+                serde_json::to_string(&notice_type).unwrap(),
+                format!("\"{expected}\"")
+            );
+
+            let deserialized: NoticeType =
+                serde_json::from_str(&format!("\"{expected}\"")).unwrap();
+            assert_eq!(deserialized, notice_type);
+        }
+    }
 }

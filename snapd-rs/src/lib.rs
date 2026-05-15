@@ -4,6 +4,10 @@ pub mod error;
 pub mod types;
 
 pub use api::changes::{Change, Task, TaskProgress};
+pub use api::notices::{ListNoticesOptions, Notice, NoticeUserFilter};
+pub use api::prompting::{
+    Interface, Prompt, PromptConstraints, PromptReplyConstraints, Rule, RuleConstraints,
+};
 pub use api::store::{ChannelSnapInfo, StoreSnap};
 pub use client::SnapdClient;
 pub use client::{SNAPD_SNAP_SOCKET, SNAPD_SOCKET, SocketAddress};

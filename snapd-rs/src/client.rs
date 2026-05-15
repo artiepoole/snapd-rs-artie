@@ -32,6 +32,7 @@ pub const SNAPD_SOCKET: &str = "/run/snapd.socket";
 /// This is a filesystem socket that snapd listens on for confined snap clients.
 pub const SNAPD_SNAP_SOCKET: &str = "/run/snapd-snap.socket";
 
+#[derive(Debug, Clone)]
 pub struct SnapdClient {
     socket: SocketAddress,
 }

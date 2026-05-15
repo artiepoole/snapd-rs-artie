@@ -10,6 +10,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
+    #[error("time format error: {0}")]
+    TimeFormat(#[from] time::error::Format),
     #[error("connection error: {0}")]
     Connection(String),
     #[error("snapd error ({kind}): {message}")]

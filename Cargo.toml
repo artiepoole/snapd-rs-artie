@@ -25,4 +25,7 @@ libc = "0.2"
 ratatui-image = { version = "11", default-features = false, features = ["image-defaults", "crossterm"] }
 image = "0.25"
 reqwest = { version = "0.12", features = ["rustls-tls"], default-features = false }
+time = { version = "0.3", features = ["formatting", "parsing", "serde"] }
+url = "2"
+strum = { version = "0.27", features = ["derive"] }
 snapd-rs = { path = "snapd-rs" }
