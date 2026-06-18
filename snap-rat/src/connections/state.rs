@@ -159,6 +159,7 @@ impl App {
 
     pub fn close_right_pane_focus(&mut self) {
         self.right_pane_focused = false;
+        self.active_right_pane = crate::app::RightPane::None;
         if self.manage_state.selected().is_none() && !self.manage_actions.is_empty() {
             self.manage_state.select(Some(0));
         }
