@@ -42,4 +42,10 @@ impl SnapdClient {
         )
         .await
     }
+
+    /// List services (daemon apps) for a specific snap.
+    pub async fn list_snap_services(&self, snap_name: &str) -> Result<Vec<AppInfo>> {
+        let apps: Vec<AppInfo> = self.get(&format!("/v2/apps?names={snap_name}")).await?;
+        Ok(apps.into_iter().filter(|a| a.daemon.is_some()).collect())
+    }
 }

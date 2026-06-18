@@ -9,6 +9,18 @@ use crate::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+pub struct ComponentInfo {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub type_: Option<String>,
+    pub version: Option<String>,
+    pub revision: Option<Revision>,
+    pub install_date: Option<String>,
+    pub summary: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct StoreAccount {
     pub id: Option<String>,
     pub username: Option<String>,
@@ -212,5 +224,39 @@ impl SnapdClient {
 
     pub async fn set_snap_conf(&self, name: &str, conf: Value) -> Result<ChangeId> {
         self.put(&format!("/v2/snaps/{name}/conf"), &conf).await
+    }
+
+    pub async fn list_snap_components(&self, snap_name: &str) -> Result<Vec<ComponentInfo>> {
+        self.get(&format!("/v2/snaps/{snap_name}/components")).await
+    }
+
+    pub async fn install_snap_component(
+        &self,
+        snap_name: &str,
+        component: &str,
+    ) -> Result<ChangeId> {
+        self.post_async(
+            &format!("/v2/snaps/{snap_name}"),
+            &json!({
+                "action": "install-components",
+                "components": [component],
+            }),
+        )
+        .await
+    }
+
+    pub async fn remove_snap_component(
+        &self,
+        snap_name: &str,
+        component: &str,
+    ) -> Result<ChangeId> {
+        self.post_async(
+            &format!("/v2/snaps/{snap_name}"),
+            &json!({
+                "action": "remove-components",
+                "components": [component],
+            }),
+        )
+        .await
     }
 }

@@ -1,7 +1,7 @@
 use ratatui::widgets::ListState;
 use snapd_rs::api::interfaces::SlotRef;
 
-use crate::app::{App, AppMode, ConnectionItem};
+use crate::app::{App, AppMode, ConnectionItem, RightPane};
 
 impl App {
     pub fn connections_next(&mut self) {
@@ -55,20 +55,136 @@ impl App {
         self.connections_state.select(Some(i));
     }
 
-    pub fn toggle_connections_mode(&mut self) {
-        self.connections_mode = !self.connections_mode;
-        if self.connections_mode {
-            // Entering connections pane: show ghost arrow on manage, highlight connections
+    pub fn components_next(&mut self) {
+        let len = self.snap_components.len();
+        if len == 0 {
+            return;
+        }
+        let i = self
+            .components_state
+            .selected()
+            .map(|i| (i + 1).min(len - 1))
+            .unwrap_or(0);
+        self.components_state.select(Some(i));
+    }
+
+    pub fn components_prev(&mut self) {
+        let len = self.snap_components.len();
+        if len == 0 {
+            return;
+        }
+        let i = match self.components_state.selected() {
+            Some(0) | None => 0,
+            Some(i) => i - 1,
+        };
+        self.components_state.select(Some(i));
+    }
+
+    pub fn services_next(&mut self) {
+        let len = self.snap_services.len();
+        if len == 0 {
+            return;
+        }
+        let i = self
+            .services_state
+            .selected()
+            .map(|i| (i + 1).min(len - 1))
+            .unwrap_or(0);
+        self.services_state.select(Some(i));
+    }
+
+    pub fn services_prev(&mut self) {
+        let len = self.snap_services.len();
+        if len == 0 {
+            return;
+        }
+        let i = match self.services_state.selected() {
+            Some(0) | None => 0,
+            Some(i) => i - 1,
+        };
+        self.services_state.select(Some(i));
+    }
+
+    pub fn right_pane_next(&mut self) {
+        match self.active_right_pane {
+            RightPane::Connections => self.connections_next(),
+            RightPane::Components => self.components_next(),
+            RightPane::Services => self.services_next(),
+        }
+    }
+
+    pub fn right_pane_prev(&mut self) {
+        match self.active_right_pane {
+            RightPane::Connections => self.connections_prev(),
+            RightPane::Components => self.components_prev(),
+            RightPane::Services => self.services_prev(),
+        }
+    }
+
+    pub fn right_pane_page_down(&mut self) {
+        match self.active_right_pane {
+            RightPane::Connections => self.connections_page_down(),
+            RightPane::Components => {
+                for _ in 0..10 {
+                    self.components_next();
+                }
+            }
+            RightPane::Services => {
+                for _ in 0..10 {
+                    self.services_next();
+                }
+            }
+        }
+    }
+
+    pub fn right_pane_page_up(&mut self) {
+        match self.active_right_pane {
+            RightPane::Connections => self.connections_page_up(),
+            RightPane::Components => {
+                for _ in 0..10 {
+                    self.components_prev();
+                }
+            }
+            RightPane::Services => {
+                for _ in 0..10 {
+                    self.services_prev();
+                }
+            }
+        }
+    }
+
+    pub fn toggle_right_pane_focus(&mut self) {
+        self.right_pane_focused = !self.right_pane_focused;
+        if self.right_pane_focused {
+            // Entering right pane: ensure something is selected
             self.manage_state
                 .select(Some(self.manage_state.selected().unwrap_or(0)));
-            if self.connections_state.selected().is_none() && !self.connection_items().is_empty() {
-                self.connections_state.select(Some(0));
+            match self.active_right_pane {
+                RightPane::Connections => {
+                    if self.connections_state.selected().is_none()
+                        && !self.connection_items().is_empty()
+                    {
+                        self.connections_state.select(Some(0));
+                    }
+                    self.connections_activated = true;
+                }
+                RightPane::Components => {
+                    if self.components_state.selected().is_none()
+                        && !self.snap_components.is_empty()
+                    {
+                        self.components_state.select(Some(0));
+                    }
+                    self.components_activated = true;
+                }
+                RightPane::Services => {
+                    if self.services_state.selected().is_none() && !self.snap_services.is_empty() {
+                        self.services_state.select(Some(0));
+                    }
+                    self.services_activated = true;
+                }
             }
-            self.connections_activated = true;
         } else {
-            // Returning to manage actions: show ghost arrow on connections, highlight manage
-            self.connections_state
-                .select(Some(self.connections_state.selected().unwrap_or(0)));
+            // Returning to manage actions: restore manage highlight
             if self.manage_state.selected().is_none() && !self.manage_actions.is_empty() {
                 self.manage_state.select(Some(0));
             }
@@ -76,9 +192,8 @@ impl App {
         }
     }
 
-    pub fn close_connections_mode(&mut self) {
-        self.connections_mode = false;
-        // Keep connections position as ghost, restore manage highlight
+    pub fn close_right_pane_focus(&mut self) {
+        self.right_pane_focused = false;
         if self.manage_state.selected().is_none() && !self.manage_actions.is_empty() {
             self.manage_state.select(Some(0));
         }
@@ -95,6 +210,157 @@ impl App {
             return;
         };
         self.request_confirm_connection();
+    }
+
+    pub async fn activate_right_pane_item(&mut self) {
+        match self.active_right_pane {
+            RightPane::Connections => {
+                self.connections_activated = false;
+                self.activate_selected_connection().await;
+            }
+            RightPane::Components => {
+                self.components_activated = false;
+                self.toggle_selected_component().await;
+            }
+            RightPane::Services => {
+                self.services_activated = false;
+                self.toggle_selected_service().await;
+            }
+        }
+    }
+
+    pub async fn toggle_selected_component(&mut self) {
+        if self.active_change_id.is_some() {
+            self.status_message = Some("Operation already in progress".to_string());
+            return;
+        }
+        let Some(idx) = self.components_state.selected() else {
+            return;
+        };
+        let Some(component) = self.snap_components.get(idx).cloned() else {
+            return;
+        };
+        let Some(snap_name) = self.managed_snap_name.clone() else {
+            return;
+        };
+
+        self.error = None;
+        self.status_message = None;
+
+        let result = if component.install_date.is_some() {
+            // Component is installed — remove it
+            self.client
+                .remove_snap_component(&snap_name, &component.name)
+                .await
+        } else {
+            // Component is not installed — install it
+            self.client
+                .install_snap_component(&snap_name, &component.name)
+                .await
+        };
+
+        match result {
+            Ok(change_id) => {
+                self.active_change_id = Some(change_id.0);
+                self.active_change = None;
+                self.status_message = Some(if component.install_date.is_some() {
+                    format!("Removing component '{}'…", component.name)
+                } else {
+                    format!("Installing component '{}'…", component.name)
+                });
+            }
+            Err(ref e) if crate::resume::is_elevation_needed(e) => {
+                self.try_elevate_and_exec(&snap_name, None);
+                self.error = Some(e.to_string());
+            }
+            Err(e) => {
+                self.error = Some(e.to_string());
+            }
+        }
+    }
+
+    pub async fn toggle_selected_service(&mut self) {
+        if self.active_change_id.is_some() {
+            self.status_message = Some("Operation already in progress".to_string());
+            return;
+        }
+        let Some(idx) = self.services_state.selected() else {
+            return;
+        };
+        let Some(service) = self.snap_services.get(idx).cloned() else {
+            return;
+        };
+        let Some(snap_name) = self.managed_snap_name.clone() else {
+            return;
+        };
+
+        self.error = None;
+        self.status_message = None;
+
+        let service_id = format!("{}.{}", snap_name, service.name);
+        let names = [service_id.as_str()];
+
+        let result = if service.active == Some(true) {
+            // Service is running — stop it
+            self.client.stop_service(&names).await
+        } else {
+            // Service is not running — start it
+            self.client.start_service(&names).await
+        };
+
+        match result {
+            Ok(change_id) => {
+                self.active_change_id = Some(change_id.0);
+                self.active_change = None;
+                self.status_message = Some(if service.active == Some(true) {
+                    format!("Stopping service '{}'…", service.name)
+                } else {
+                    format!("Starting service '{}'…", service.name)
+                });
+            }
+            Err(ref e) if crate::resume::is_elevation_needed(e) => {
+                self.try_elevate_and_exec(&snap_name, None);
+                self.error = Some(e.to_string());
+            }
+            Err(e) => {
+                self.error = Some(e.to_string());
+            }
+        }
+    }
+
+    pub async fn restart_selected_service(&mut self) {
+        if self.active_change_id.is_some() {
+            self.status_message = Some("Operation already in progress".to_string());
+            return;
+        }
+        let Some(idx) = self.services_state.selected() else {
+            return;
+        };
+        let Some(service) = self.snap_services.get(idx).cloned() else {
+            return;
+        };
+        let Some(snap_name) = self.managed_snap_name.clone() else {
+            return;
+        };
+
+        self.error = None;
+        self.status_message = None;
+        let service_id = format!("{}.{}", snap_name, service.name);
+        let names = [service_id.as_str()];
+        match self.client.restart_service(&names).await {
+            Ok(change_id) => {
+                self.active_change_id = Some(change_id.0);
+                self.active_change = None;
+                self.status_message = Some(format!("Restarting service '{}'…", service.name));
+            }
+            Err(ref e) if crate::resume::is_elevation_needed(e) => {
+                self.try_elevate_and_exec(&snap_name, None);
+                self.error = Some(e.to_string());
+            }
+            Err(e) => {
+                self.error = Some(e.to_string());
+            }
+        }
     }
 
     pub async fn connect_selected(&mut self) {
