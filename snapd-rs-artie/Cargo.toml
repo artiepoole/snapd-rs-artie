@@ -1,7 +1,12 @@
 [package]
-name = "snapd-rs"
+name = "snapd-rs-artie"
 version.workspace = true
 edition.workspace = true
+description = "Unnofficial Rust client library for the snapd REST API"
+license = "GPL-3"
+repository = "https://github.com/artiepoole/snapd-rs-artie"
+keywords = ["snapd", "snap", "async", "client", "api"]
+categories = ["api-bindings", "asynchronous"]
 
 [dependencies]
 tokio.workspace = true
