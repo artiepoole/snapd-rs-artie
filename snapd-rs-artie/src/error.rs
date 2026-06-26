@@ -2,10 +2,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("HTTP error: {0}")]
-    Http(#[from] hyper::Error),
-    #[error("HTTP request error: {0}")]
-    HttpRequest(#[from] hyper::http::Error),
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
     #[error("JSON error: {0}")]

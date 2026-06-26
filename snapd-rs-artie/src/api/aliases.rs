@@ -18,11 +18,11 @@ pub struct AliasStatus {
 }
 
 impl SnapdClient {
-    pub async fn list_aliases(&self) -> Result<HashMap<String, HashMap<String, AliasStatus>>> {
-        self.get("/v2/aliases").await
+    pub fn list_aliases(&self) -> Result<HashMap<String, HashMap<String, AliasStatus>>> {
+        self.get("/v2/aliases")
     }
 
-    pub async fn set_alias(&self, snap: &str, app: &str, alias: &str) -> Result<ChangeId> {
+    pub fn set_alias(&self, snap: &str, app: &str, alias: &str) -> Result<ChangeId> {
         self.post_async(
             "/v2/aliases",
             &json!({
@@ -32,10 +32,9 @@ impl SnapdClient {
                 "alias": alias,
             }),
         )
-        .await
     }
 
-    pub async fn remove_alias(&self, snap: &str, alias: &str) -> Result<ChangeId> {
+    pub fn remove_alias(&self, snap: &str, alias: &str) -> Result<ChangeId> {
         self.post_async(
             "/v2/aliases",
             &json!({
@@ -44,11 +43,9 @@ impl SnapdClient {
                 "alias": alias,
             }),
         )
-        .await
     }
 
-    pub async fn prefer_aliases(&self, snap: &str) -> Result<ChangeId> {
+    pub fn prefer_aliases(&self, snap: &str) -> Result<ChangeId> {
         self.post_async("/v2/aliases", &json!({ "action": "prefer", "snap": snap }))
-            .await
     }
 }

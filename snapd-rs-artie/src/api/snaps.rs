@@ -106,15 +106,15 @@ pub struct Screenshot {
 }
 
 impl SnapdClient {
-    pub async fn list_snaps(&self) -> Result<Vec<Snap>> {
-        self.get("/v2/snaps").await
+    pub fn list_snaps(&self) -> Result<Vec<Snap>> {
+        self.get("/v2/snaps")
     }
 
-    pub async fn get_snap(&self, name: &str) -> Result<Snap> {
-        self.get(&format!("/v2/snaps/{name}")).await
+    pub fn get_snap(&self, name: &str) -> Result<Snap> {
+        self.get(&format!("/v2/snaps/{name}"))
     }
 
-    pub async fn install_snap(&self, name: &str, channel: Option<&str>) -> Result<ChangeId> {
+    pub fn install_snap(&self, name: &str, channel: Option<&str>) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{name}"),
             &json!({
@@ -122,19 +122,18 @@ impl SnapdClient {
                 "channel": channel,
             }),
         )
-        .await
     }
 
-    pub async fn sideload_snap(&self, path: &str) -> Result<ChangeId> {
-        self.sideload_snap_inner(path, false).await
+    pub fn sideload_snap(&self, path: &str) -> Result<ChangeId> {
+        self.sideload_snap_inner(path, false)
     }
 
-    pub async fn sideload_snap_classic(&self, path: &str) -> Result<ChangeId> {
-        self.sideload_snap_inner(path, true).await
+    pub fn sideload_snap_classic(&self, path: &str) -> Result<ChangeId> {
+        self.sideload_snap_inner(path, true)
     }
 
-    async fn sideload_snap_inner(&self, path: &str, classic: bool) -> Result<ChangeId> {
-        let data = tokio::fs::read(path).await?;
+    fn sideload_snap_inner(&self, path: &str, classic: bool) -> Result<ChangeId> {
+        let data = std::fs::read(path)?;
         let boundary = "snapd-rs-sideload-boundary";
         let filename = std::path::Path::new(path)
             .file_name()
@@ -175,14 +174,9 @@ impl SnapdClient {
 
         let content_type = format!("multipart/form-data; boundary={}", boundary);
         self.post_multipart_async("/v2/snaps", &body, &content_type)
-            .await
     }
 
-    pub async fn install_snap_classic(
-        &self,
-        name: &str,
-        channel: Option<&str>,
-    ) -> Result<ChangeId> {
+    pub fn install_snap_classic(&self, name: &str, channel: Option<&str>) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{name}"),
             &json!({
@@ -191,23 +185,20 @@ impl SnapdClient {
                 "classic": true,
             }),
         )
-        .await
     }
 
-    pub async fn remove_snap(&self, name: &str) -> Result<ChangeId> {
+    pub fn remove_snap(&self, name: &str) -> Result<ChangeId> {
         self.post_async(&format!("/v2/snaps/{name}"), &json!({ "action": "remove" }))
-            .await
     }
 
-    pub async fn remove_snap_purge(&self, name: &str) -> Result<ChangeId> {
+    pub fn remove_snap_purge(&self, name: &str) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{name}"),
             &json!({ "action": "remove", "purge": true }),
         )
-        .await
     }
 
-    pub async fn refresh_snap(&self, name: &str, channel: Option<&str>) -> Result<ChangeId> {
+    pub fn refresh_snap(&self, name: &str, channel: Option<&str>) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{name}"),
             &json!({
@@ -215,50 +206,42 @@ impl SnapdClient {
                 "channel": channel,
             }),
         )
-        .await
     }
 
-    pub async fn revert_snap(&self, name: &str) -> Result<ChangeId> {
+    pub fn revert_snap(&self, name: &str) -> Result<ChangeId> {
         self.post_async(&format!("/v2/snaps/{name}"), &json!({ "action": "revert" }))
-            .await
     }
 
-    pub async fn enable_snap(&self, name: &str) -> Result<ChangeId> {
+    pub fn enable_snap(&self, name: &str) -> Result<ChangeId> {
         self.post_async(&format!("/v2/snaps/{name}"), &json!({ "action": "enable" }))
-            .await
     }
 
-    pub async fn disable_snap(&self, name: &str) -> Result<ChangeId> {
+    pub fn disable_snap(&self, name: &str) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{name}"),
             &json!({ "action": "disable" }),
         )
-        .await
     }
 
-    pub async fn get_snap_conf(&self, name: &str, keys: &[&str]) -> Result<Value> {
+    pub fn get_snap_conf(&self, name: &str, keys: &[&str]) -> Result<Value> {
         let path = if keys.is_empty() {
             format!("/v2/snaps/{name}/conf")
         } else {
             format!("/v2/snaps/{name}/conf?keys={}", keys.join(","))
         };
-        self.get(&path).await
+        self.get(&path)
     }
 
-    pub async fn set_snap_conf(&self, name: &str, conf: Value) -> Result<ChangeId> {
-        self.put(&format!("/v2/snaps/{name}/conf"), &conf).await
+    pub fn set_snap_conf(&self, name: &str, conf: Value) -> Result<ChangeId> {
+        self.put(&format!("/v2/snaps/{name}/conf"), &conf)
     }
 
-    pub async fn list_snap_components(&self, snap_name: &str) -> Result<Vec<ComponentInfo>> {
-        let snap: Snap = self.get(&format!("/v2/snaps/{snap_name}")).await?;
+    pub fn list_snap_components(&self, snap_name: &str) -> Result<Vec<ComponentInfo>> {
+        let snap: Snap = self.get(&format!("/v2/snaps/{snap_name}"))?;
         Ok(snap.components)
     }
 
-    pub async fn install_snap_component(
-        &self,
-        snap_name: &str,
-        component: &str,
-    ) -> Result<ChangeId> {
+    pub fn install_snap_component(&self, snap_name: &str, component: &str) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{snap_name}"),
             &json!({
@@ -266,14 +249,9 @@ impl SnapdClient {
                 "components": [component],
             }),
         )
-        .await
     }
 
-    pub async fn remove_snap_component(
-        &self,
-        snap_name: &str,
-        component: &str,
-    ) -> Result<ChangeId> {
+    pub fn remove_snap_component(&self, snap_name: &str, component: &str) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/snaps/{snap_name}"),
             &json!({
@@ -281,6 +259,5 @@ impl SnapdClient {
                 "components": [component],
             }),
         )
-        .await
     }
 }

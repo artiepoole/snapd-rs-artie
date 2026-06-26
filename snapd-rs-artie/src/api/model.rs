@@ -12,11 +12,11 @@ pub struct AssertionJson {
 }
 
 impl SnapdClient {
-    pub async fn get_model(&self) -> Result<AssertionJson> {
-        self.get("/v2/model?json=true").await
+    pub fn get_model(&self) -> Result<AssertionJson> {
+        self.get("/v2/model?json=true")
     }
 
-    pub async fn get_serial(&self) -> Result<AssertionJson> {
-        self.get("/v2/model/serial?json=true").await
+    pub fn get_serial(&self) -> Result<AssertionJson> {
+        self.get("/v2/model/serial?json=true")
     }
 }

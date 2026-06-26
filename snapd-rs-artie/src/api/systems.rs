@@ -74,20 +74,19 @@ struct ListSystemsResponse {
 }
 
 impl SnapdClient {
-    pub async fn list_systems(&self) -> Result<Vec<RecoverySystem>> {
-        let response: ListSystemsResponse = self.get("/v2/systems").await?;
+    pub fn list_systems(&self) -> Result<Vec<RecoverySystem>> {
+        let response: ListSystemsResponse = self.get("/v2/systems")?;
         Ok(response.systems)
     }
 
-    pub async fn get_system(&self, label: &str) -> Result<SystemDetails> {
-        self.get(&format!("/v2/systems/{label}")).await
+    pub fn get_system(&self, label: &str) -> Result<SystemDetails> {
+        self.get(&format!("/v2/systems/{label}"))
     }
 
-    pub async fn reboot_into_system(&self, label: &str, mode: SystemMode) -> Result<ChangeId> {
+    pub fn reboot_into_system(&self, label: &str, mode: SystemMode) -> Result<ChangeId> {
         self.post_async(
             &format!("/v2/systems/{label}"),
             &json!({ "action": "reboot", "mode": mode }),
         )
-        .await
     }
 }

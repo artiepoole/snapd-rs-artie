@@ -145,41 +145,39 @@ struct AddNoticeResponse {
 }
 
 impl SnapdClient {
-    pub async fn list_notices(&self) -> Result<Vec<Notice>> {
-        self.list_notices_with(&ListNoticesOptions::new()).await
+    pub fn list_notices(&self) -> Result<Vec<Notice>> {
+        self.list_notices_with(&ListNoticesOptions::new())
     }
 
-    pub async fn list_notices_with(&self, options: &ListNoticesOptions) -> Result<Vec<Notice>> {
+    pub fn list_notices_with(&self, options: &ListNoticesOptions) -> Result<Vec<Notice>> {
         let query = options.to_query_string()?;
         let path = if query.is_empty() {
             "/v2/notices".to_string()
         } else {
             format!("/v2/notices?{query}")
         };
-        self.get(&path).await
+        self.get(&path)
     }
 
-    pub async fn get_notice(&self, id: &str) -> Result<Notice> {
-        self.get(&format!("/v2/notices/{id}")).await
+    pub fn get_notice(&self, id: &str) -> Result<Notice> {
+        self.get(&format!("/v2/notices/{id}"))
     }
 
-    pub async fn add_notice(
+    pub fn add_notice(
         &self,
         notice_type: NoticeType,
         key: &str,
         data: Option<HashMap<String, String>>,
     ) -> Result<String> {
-        let response: AddNoticeResponse = self
-            .post_sync(
-                "/v2/notices",
-                &json!({
-                    "action": "add",
-                    "type": notice_type,
-                    "key": key,
-                    "data": data,
-                }),
-            )
-            .await?;
+        let response: AddNoticeResponse = self.post_sync(
+            "/v2/notices",
+            &json!({
+                "action": "add",
+                "type": notice_type,
+                "key": key,
+                "data": data,
+            }),
+        )?;
         Ok(response.id)
     }
 }

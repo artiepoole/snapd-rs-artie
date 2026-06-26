@@ -21,47 +21,42 @@ pub struct AppInfo {
 }
 
 impl SnapdClient {
-    pub async fn list_apps(&self) -> Result<Vec<AppInfo>> {
-        self.get("/v2/apps").await
+    pub fn list_apps(&self) -> Result<Vec<AppInfo>> {
+        self.get("/v2/apps")
     }
 
-    pub async fn start_service(&self, services: &[&str]) -> Result<ChangeId> {
+    pub fn start_service(&self, services: &[&str]) -> Result<ChangeId> {
         self.post_async("/v2/apps", &json!({ "action": "start", "names": services }))
-            .await
     }
 
-    pub async fn stop_service(&self, services: &[&str]) -> Result<ChangeId> {
+    pub fn stop_service(&self, services: &[&str]) -> Result<ChangeId> {
         self.post_async("/v2/apps", &json!({ "action": "stop", "names": services }))
-            .await
     }
 
-    pub async fn restart_service(&self, services: &[&str]) -> Result<ChangeId> {
+    pub fn restart_service(&self, services: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/apps",
             &json!({ "action": "restart", "names": services }),
         )
-        .await
     }
 
-    pub async fn enable_service(&self, services: &[&str]) -> Result<ChangeId> {
+    pub fn enable_service(&self, services: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/apps",
             &json!({ "action": "start", "names": services, "enable": true }),
         )
-        .await
     }
 
-    pub async fn disable_service(&self, services: &[&str]) -> Result<ChangeId> {
+    pub fn disable_service(&self, services: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/apps",
             &json!({ "action": "stop", "names": services, "disable": true }),
         )
-        .await
     }
 
     /// List services (daemon apps) for a specific snap.
-    pub async fn list_snap_services(&self, snap_name: &str) -> Result<Vec<AppInfo>> {
-        let apps: Vec<AppInfo> = self.get(&format!("/v2/apps?names={snap_name}")).await?;
+    pub fn list_snap_services(&self, snap_name: &str) -> Result<Vec<AppInfo>> {
+        let apps: Vec<AppInfo> = self.get(&format!("/v2/apps?names={snap_name}"))?;
         Ok(apps.into_iter().filter(|a| a.daemon.is_some()).collect())
     }
 }

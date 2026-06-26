@@ -6,7 +6,7 @@ This is a Rust workspace with one crate
 
 | Crate            | Path              | Purpose |
 |------------------|-------------------|---|
-| `snapd-rs-artie` | `snapd-rs-artie/` | snapd API client (Unix socket via hyper) |
+| `snapd-rs-artie` | `snapd-rs-artie/` | snapd API client (synchronous, Unix socket via std) |
 
 ---
 

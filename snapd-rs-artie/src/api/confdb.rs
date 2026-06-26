@@ -5,12 +5,11 @@ use serde_json::{Value, json};
 use crate::{client::SnapdClient, error::Result, types::ChangeId};
 
 impl SnapdClient {
-    pub async fn get_confdb(&self, account: &str, schema: &str, view: &str) -> Result<ChangeId> {
+    pub fn get_confdb(&self, account: &str, schema: &str, view: &str) -> Result<ChangeId> {
         self.get_async(&format!("/v2/confdb/{account}/{schema}/{view}"))
-            .await
     }
 
-    pub async fn set_confdb(
+    pub fn set_confdb(
         &self,
         account: &str,
         schema: &str,
@@ -21,6 +20,5 @@ impl SnapdClient {
             &format!("/v2/confdb/{account}/{schema}/{view}"),
             &json!({ "values": values }),
         )
-        .await
     }
 }

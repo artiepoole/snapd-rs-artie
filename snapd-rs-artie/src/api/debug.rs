@@ -3,11 +3,11 @@ use serde_json::{Value, json};
 use crate::{client::SnapdClient, error::Result};
 
 impl SnapdClient {
-    pub async fn get_debug_info(&self, aspect: &str) -> Result<Value> {
-        self.get(&format!("/v2/debug?aspect={aspect}")).await
+    pub fn get_debug_info(&self, aspect: &str) -> Result<Value> {
+        self.get(&format!("/v2/debug?aspect={aspect}"))
     }
 
-    pub async fn debug_action(&self, action: &str, params: Value) -> Result<Value> {
+    pub fn debug_action(&self, action: &str, params: Value) -> Result<Value> {
         self.post_sync(
             "/v2/debug",
             &json!({
@@ -15,6 +15,5 @@ impl SnapdClient {
                 "params": params,
             }),
         )
-        .await
     }
 }

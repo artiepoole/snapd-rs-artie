@@ -479,16 +479,15 @@ struct PostRuleRequestBody {
 }
 
 impl SnapdClient {
-    pub async fn list_prompts(&self) -> Result<Vec<Prompt>> {
-        self.get("/v2/interfaces/requests/prompts").await
+    pub fn list_prompts(&self) -> Result<Vec<Prompt>> {
+        self.get("/v2/interfaces/requests/prompts")
     }
 
-    pub async fn get_prompt(&self, id: &str) -> Result<Prompt> {
+    pub fn get_prompt(&self, id: &str) -> Result<Prompt> {
         self.get(&format!("/v2/interfaces/requests/prompts/{id}"))
-            .await
     }
 
-    pub async fn reply_to_prompt(
+    pub fn reply_to_prompt(
         &self,
         id: &str,
         action: PromptOutcome,
@@ -503,52 +502,43 @@ impl SnapdClient {
             constraints,
         };
         self.post_sync(&format!("/v2/interfaces/requests/prompts/{id}"), &request)
-            .await
     }
 
-    pub async fn list_prompt_rules(&self) -> Result<Vec<Rule>> {
-        self.get("/v2/interfaces/requests/rules").await
+    pub fn list_prompt_rules(&self) -> Result<Vec<Rule>> {
+        self.get("/v2/interfaces/requests/rules")
     }
 
-    pub async fn add_prompt_rule(&self, rule: AddRuleContents) -> Result<Rule> {
+    pub fn add_prompt_rule(&self, rule: AddRuleContents) -> Result<Rule> {
         let request = PostRulesRequestBody {
             action: "add",
             rule: Some(rule),
             selector: None,
         };
         self.post_sync("/v2/interfaces/requests/rules", &request)
-            .await
     }
 
-    pub async fn remove_prompt_rules(&self, selector: RemoveRulesSelector) -> Result<Vec<Rule>> {
+    pub fn remove_prompt_rules(&self, selector: RemoveRulesSelector) -> Result<Vec<Rule>> {
         let request = PostRulesRequestBody {
             action: "remove",
             rule: None,
             selector: Some(selector),
         };
         self.post_sync("/v2/interfaces/requests/rules", &request)
-            .await
     }
 
-    pub async fn get_prompt_rule(&self, id: &str) -> Result<Rule> {
+    pub fn get_prompt_rule(&self, id: &str) -> Result<Rule> {
         self.get(&format!("/v2/interfaces/requests/rules/{id}"))
-            .await
     }
 
-    pub async fn patch_prompt_rule(
-        &self,
-        id: &str,
-        constraints: RuleConstraintsPatch,
-    ) -> Result<Rule> {
+    pub fn patch_prompt_rule(&self, id: &str, constraints: RuleConstraintsPatch) -> Result<Rule> {
         let request = PostRuleRequestBody {
             action: "patch",
             rule: Some(PatchRuleContents { constraints }),
         };
         self.post_sync(&format!("/v2/interfaces/requests/rules/{id}"), &request)
-            .await
     }
 
-    pub async fn remove_prompt_rule(&self, id: &str) -> Result<Rule> {
+    pub fn remove_prompt_rule(&self, id: &str) -> Result<Rule> {
         self.post_sync(
             &format!("/v2/interfaces/requests/rules/{id}"),
             &PostRuleRequestBody {
@@ -556,7 +546,6 @@ impl SnapdClient {
                 rule: None,
             },
         )
-        .await
     }
 }
 

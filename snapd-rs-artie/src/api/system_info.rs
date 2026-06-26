@@ -59,19 +59,19 @@ pub struct Warning {
 }
 
 impl SnapdClient {
-    pub async fn get_system_info(&self) -> Result<SystemInfo> {
-        self.get("/v2/system-info").await
+    pub fn get_system_info(&self) -> Result<SystemInfo> {
+        self.get("/v2/system-info")
     }
 
-    pub async fn get_storage_encryption_status(&self) -> Result<StorageEncryptionStatus> {
-        self.get("/v2/system-info/storage-encrypted").await
+    pub fn get_storage_encryption_status(&self) -> Result<StorageEncryptionStatus> {
+        self.get("/v2/system-info/storage-encrypted")
     }
 
-    pub async fn get_warnings(&self) -> Result<Vec<Warning>> {
-        self.get("/v2/warnings").await
+    pub fn get_warnings(&self) -> Result<Vec<Warning>> {
+        self.get("/v2/warnings")
     }
 
-    pub async fn acknowledge_warnings(&self, timestamp: &str) -> Result<()> {
+    pub fn acknowledge_warnings(&self, timestamp: &str) -> Result<()> {
         self.post_sync(
             "/v2/warnings",
             &json!({
@@ -79,6 +79,5 @@ impl SnapdClient {
                 "timestamp": timestamp,
             }),
         )
-        .await
     }
 }

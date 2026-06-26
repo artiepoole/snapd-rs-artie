@@ -11,12 +11,11 @@ pub struct SystemRecoveryKeys {
 }
 
 impl SnapdClient {
-    pub async fn get_recovery_keys(&self) -> Result<SystemRecoveryKeys> {
-        self.get("/v2/system-recovery-keys").await
+    pub fn get_recovery_keys(&self) -> Result<SystemRecoveryKeys> {
+        self.get("/v2/system-recovery-keys")
     }
 
-    pub async fn remove_recovery_keys(&self) -> Result<()> {
+    pub fn remove_recovery_keys(&self) -> Result<()> {
         self.post_sync("/v2/system-recovery-keys", &json!({ "action": "remove" }))
-            .await
     }
 }

@@ -1,0 +1,7 @@
+name: snapd-rs
+base: ubuntu@24.04
+sdks:
+  - name: copilot
+  - name: rust
+actions:
+  copilot: copilot --yolo "$@"

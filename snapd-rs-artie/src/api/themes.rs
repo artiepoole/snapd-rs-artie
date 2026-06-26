@@ -45,17 +45,17 @@ fn build_theme_path(gtk_themes: &[&str], icon_themes: &[&str], sound_themes: &[&
 }
 
 impl SnapdClient {
-    pub async fn get_theme_status(
+    pub fn get_theme_status(
         &self,
         gtk_themes: &[&str],
         icon_themes: &[&str],
         sound_themes: &[&str],
     ) -> Result<ThemeStatus> {
         let path = build_theme_path(gtk_themes, icon_themes, sound_themes);
-        self.get(&path).await
+        self.get(&path)
     }
 
-    pub async fn install_themes(
+    pub fn install_themes(
         &self,
         gtk_themes: &[&str],
         icon_themes: &[&str],
@@ -69,6 +69,5 @@ impl SnapdClient {
                 "sound-themes": sound_themes,
             }),
         )
-        .await
     }
 }

@@ -1,14 +1,8 @@
+use std::io::{BufRead, BufReader, Read, Write};
+use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 
-use http_body_util::{BodyExt, Full};
-use hyper::{
-    Method, Request,
-    body::Bytes,
-    header::{CONTENT_TYPE, HOST},
-};
-use hyper_util::rt::TokioIo;
 use serde::{Serialize, de::DeserializeOwned};
-use tokio::net::UnixStream;
 
 use crate::{
     error::{Error, Result},
@@ -72,156 +66,113 @@ impl SnapdClient {
         }
     }
 
-    async fn connect(&self) -> Result<UnixStream> {
+    fn connect(&self) -> Result<UnixStream> {
         match &self.socket {
-            SocketAddress::Filesystem(path) => Ok(UnixStream::connect(path).await?),
+            SocketAddress::Filesystem(path) => Ok(UnixStream::connect(path)?),
             SocketAddress::Abstract(name) => {
                 use std::os::linux::net::SocketAddrExt;
                 let addr = std::os::unix::net::SocketAddr::from_abstract_name(name.as_bytes())
                     .map_err(|e| Error::Connection(format!("invalid abstract socket name: {e}")))?;
-                let std_stream =
-                    std::os::unix::net::UnixStream::connect_addr(&addr).map_err(|e| {
-                        Error::Connection(format!(
-                            "failed to connect to abstract socket @{name}: {e}"
-                        ))
-                    })?;
-                std_stream.set_nonblocking(true)?;
-                Ok(UnixStream::from_std(std_stream)?)
+                UnixStream::connect_addr(&addr).map_err(|e| {
+                    Error::Connection(format!("failed to connect to abstract socket @{name}: {e}"))
+                })
             }
         }
     }
 
-    async fn send_request(
+    /// Send an HTTP/1.1 request over the snapd Unix socket and return the
+    /// response body bytes. A fresh connection is opened per request and the
+    /// `Connection: close` header asks snapd to close it once the response has
+    /// been written.
+    fn send_request(
         &self,
-        req: Request<Full<Bytes>>,
-    ) -> Result<hyper::Response<hyper::body::Incoming>> {
-        let stream = self.connect().await?;
-        let io = TokioIo::new(stream);
-        let (mut sender, connection) = hyper::client::conn::http1::handshake(io).await?;
-
-        tokio::spawn(async move {
-            let _ = connection.await;
-        });
-
-        Ok(sender.send_request(req).await?)
-    }
-
-    fn build_request(
-        &self,
-        method: Method,
+        method: &str,
         path: &str,
-        body: Bytes,
+        body: &[u8],
         content_type: Option<&str>,
-    ) -> Result<Request<Full<Bytes>>> {
-        let mut builder = Request::builder()
-            .method(method)
-            .uri(path)
-            .header(HOST, "localhost");
+    ) -> Result<Vec<u8>> {
+        let mut stream = self.connect()?;
 
+        let mut head = format!("{method} {path} HTTP/1.1\r\nHost: localhost\r\n");
         if let Some(ct) = content_type {
-            builder = builder.header(CONTENT_TYPE, ct);
+            head.push_str(&format!("Content-Type: {ct}\r\n"));
         }
+        head.push_str(&format!("Content-Length: {}\r\n", body.len()));
+        head.push_str("Connection: close\r\n\r\n");
 
-        Ok(builder.body(Full::new(body))?)
+        stream.write_all(head.as_bytes())?;
+        if !body.is_empty() {
+            stream.write_all(body)?;
+        }
+        stream.flush()?;
+
+        read_response(stream)
     }
 
-    pub(crate) async fn get_bytes(&self, path: &str) -> Result<Bytes> {
-        let req = self.build_request(Method::GET, path, Bytes::new(), None)?;
-        let response = self.send_request(req).await?;
-        Ok(response.into_body().collect().await?.to_bytes())
+    pub(crate) fn get_bytes(&self, path: &str) -> Result<Vec<u8>> {
+        self.send_request("GET", path, &[], None)
     }
 
-    pub(crate) async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
-        let req = self.build_request(Method::GET, path, Bytes::new(), None)?;
-        self.execute_sync(req).await
+    pub(crate) fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T> {
+        let bytes = self.send_request("GET", path, &[], None)?;
+        self.parse_sync(&bytes)
     }
 
-    pub(crate) async fn get_async(&self, path: &str) -> Result<ChangeId> {
-        let req = self.build_request(Method::GET, path, Bytes::new(), None)?;
-        self.execute_async(req).await
+    pub(crate) fn get_async(&self, path: &str) -> Result<ChangeId> {
+        let bytes = self.send_request("GET", path, &[], None)?;
+        self.parse_async(&bytes)
     }
 
-    pub(crate) async fn post_sync<B: Serialize, T: DeserializeOwned>(
+    pub(crate) fn post_sync<B: Serialize, T: DeserializeOwned>(
         &self,
         path: &str,
         body: &B,
     ) -> Result<T> {
         let payload = serde_json::to_vec(body)?;
-        let req = self.build_request(
-            Method::POST,
-            path,
-            Bytes::from(payload),
-            Some("application/json"),
-        )?;
-        self.execute_sync(req).await
+        let bytes = self.send_request("POST", path, &payload, Some("application/json"))?;
+        self.parse_sync(&bytes)
     }
 
-    pub(crate) async fn post_async<B: Serialize>(&self, path: &str, body: &B) -> Result<ChangeId> {
+    pub(crate) fn post_async<B: Serialize>(&self, path: &str, body: &B) -> Result<ChangeId> {
         let payload = serde_json::to_vec(body)?;
-        let req = self.build_request(
-            Method::POST,
-            path,
-            Bytes::from(payload),
-            Some("application/json"),
-        )?;
-        self.execute_async(req).await
+        let bytes = self.send_request("POST", path, &payload, Some("application/json"))?;
+        self.parse_async(&bytes)
     }
 
-    pub(crate) async fn post_multipart_async(
+    pub(crate) fn post_multipart_async(
         &self,
         path: &str,
         body: &[u8],
         content_type: &str,
     ) -> Result<ChangeId> {
-        let req = self.build_request(
-            Method::POST,
-            path,
-            Bytes::copy_from_slice(body),
-            Some(content_type),
-        )?;
-        self.execute_async(req).await
+        let bytes = self.send_request("POST", path, body, Some(content_type))?;
+        self.parse_async(&bytes)
     }
 
-    pub(crate) async fn put<B: Serialize, T: DeserializeOwned>(
+    pub(crate) fn put<B: Serialize, T: DeserializeOwned>(&self, path: &str, body: &B) -> Result<T> {
+        let payload = serde_json::to_vec(body)?;
+        let bytes = self.send_request("PUT", path, &payload, Some("application/json"))?;
+        self.parse_sync(&bytes)
+    }
+
+    pub(crate) fn put_async<B: Serialize>(&self, path: &str, body: &B) -> Result<ChangeId> {
+        let payload = serde_json::to_vec(body)?;
+        let bytes = self.send_request("PUT", path, &payload, Some("application/json"))?;
+        self.parse_async(&bytes)
+    }
+
+    pub(crate) fn post_raw_sync<T: DeserializeOwned>(
         &self,
         path: &str,
-        body: &B,
-    ) -> Result<T> {
-        let payload = serde_json::to_vec(body)?;
-        let req = self.build_request(
-            Method::PUT,
-            path,
-            Bytes::from(payload),
-            Some("application/json"),
-        )?;
-        self.execute_sync(req).await
-    }
-
-    pub(crate) async fn put_async<B: Serialize>(&self, path: &str, body: &B) -> Result<ChangeId> {
-        let payload = serde_json::to_vec(body)?;
-        let req = self.build_request(
-            Method::PUT,
-            path,
-            Bytes::from(payload),
-            Some("application/json"),
-        )?;
-        self.execute_async(req).await
-    }
-
-    pub(crate) async fn post_raw_sync<T: DeserializeOwned>(
-        &self,
-        path: &str,
-        body: Bytes,
+        body: &[u8],
         content_type: &'static str,
     ) -> Result<T> {
-        let req = self.build_request(Method::POST, path, body, Some(content_type))?;
-        self.execute_sync(req).await
+        let bytes = self.send_request("POST", path, body, Some(content_type))?;
+        self.parse_sync(&bytes)
     }
 
-    async fn execute_sync<T: DeserializeOwned>(&self, req: Request<Full<Bytes>>) -> Result<T> {
-        let response = self.send_request(req).await?;
-        let body = response.into_body().collect().await?.to_bytes();
-        let envelope: RawSnapdResponse = serde_json::from_slice(&body)?;
+    fn parse_sync<T: DeserializeOwned>(&self, bytes: &[u8]) -> Result<T> {
+        let envelope: RawSnapdResponse = serde_json::from_slice(bytes)?;
 
         match envelope.response_type {
             ResponseType::Sync => Ok(serde_json::from_value(
@@ -232,10 +183,8 @@ impl SnapdClient {
         }
     }
 
-    async fn execute_async(&self, req: Request<Full<Bytes>>) -> Result<ChangeId> {
-        let response = self.send_request(req).await?;
-        let body = response.into_body().collect().await?.to_bytes();
-        let envelope: RawSnapdResponse = serde_json::from_slice(&body)?;
+    fn parse_async(&self, bytes: &[u8]) -> Result<ChangeId> {
+        let envelope: RawSnapdResponse = serde_json::from_slice(bytes)?;
 
         match envelope.response_type {
             ResponseType::Async => match envelope.change {
@@ -275,4 +224,89 @@ impl Default for SnapdClient {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Read a full HTTP/1.1 response from the stream and return the body bytes.
+///
+/// Handles `Transfer-Encoding: chunked`, `Content-Length`, and
+/// close-delimited responses.
+fn read_response(stream: UnixStream) -> Result<Vec<u8>> {
+    let mut reader = BufReader::new(stream);
+
+    let mut status_line = String::new();
+    if reader.read_line(&mut status_line)? == 0 {
+        return Err(Error::Connection("empty HTTP response".to_string()));
+    }
+
+    let mut content_length: Option<usize> = None;
+    let mut chunked = false;
+    loop {
+        let mut line = String::new();
+        if reader.read_line(&mut line)? == 0 {
+            break;
+        }
+        let line = line.trim_end_matches(['\r', '\n']);
+        if line.is_empty() {
+            break;
+        }
+        if let Some((name, value)) = line.split_once(':') {
+            let name = name.trim().to_ascii_lowercase();
+            let value = value.trim();
+            match name.as_str() {
+                "content-length" => content_length = value.parse::<usize>().ok(),
+                "transfer-encoding" if value.to_ascii_lowercase().contains("chunked") => {
+                    chunked = true;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if chunked {
+        read_chunked_body(&mut reader)
+    } else if let Some(len) = content_length {
+        let mut body = vec![0u8; len];
+        reader.read_exact(&mut body)?;
+        Ok(body)
+    } else {
+        let mut body = Vec::new();
+        reader.read_to_end(&mut body)?;
+        Ok(body)
+    }
+}
+
+/// Decode a chunked transfer-encoded body.
+fn read_chunked_body<R: BufRead>(reader: &mut R) -> Result<Vec<u8>> {
+    let mut body = Vec::new();
+    loop {
+        let mut size_line = String::new();
+        if reader.read_line(&mut size_line)? == 0 {
+            break;
+        }
+        let size_field = size_line.trim().split(';').next().unwrap_or("").trim();
+        if size_field.is_empty() {
+            break;
+        }
+        let size = usize::from_str_radix(size_field, 16)
+            .map_err(|_| Error::Connection(format!("invalid chunk size: {size_field}")))?;
+        if size == 0 {
+            // Consume any trailers up to the terminating blank line.
+            loop {
+                let mut trailer = String::new();
+                if reader.read_line(&mut trailer)? == 0
+                    || trailer.trim_end_matches(['\r', '\n']).is_empty()
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        let mut chunk = vec![0u8; size];
+        reader.read_exact(&mut chunk)?;
+        body.extend_from_slice(&chunk);
+        // Consume the CRLF that terminates the chunk data.
+        let mut crlf = String::new();
+        reader.read_line(&mut crlf)?;
+    }
+    Ok(body)
 }

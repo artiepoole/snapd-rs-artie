@@ -31,12 +31,7 @@ pub struct CreateUserRequest {
 }
 
 impl SnapdClient {
-    pub async fn login(
-        &self,
-        email: &str,
-        password: &str,
-        otp: Option<&str>,
-    ) -> Result<LoginResponse> {
+    pub fn login(&self, email: &str, password: &str, otp: Option<&str>) -> Result<LoginResponse> {
         self.post_sync(
             "/v2/login",
             &json!({
@@ -45,18 +40,17 @@ impl SnapdClient {
                 "otp": otp,
             }),
         )
-        .await
     }
 
-    pub async fn logout(&self) -> Result<()> {
-        self.post_sync("/v2/logout", &json!({})).await
+    pub fn logout(&self) -> Result<()> {
+        self.post_sync("/v2/logout", &json!({}))
     }
 
-    pub async fn list_users(&self) -> Result<Vec<UserInfo>> {
-        self.get("/v2/users").await
+    pub fn list_users(&self) -> Result<Vec<UserInfo>> {
+        self.get("/v2/users")
     }
 
-    pub async fn create_user(&self, request: &CreateUserRequest) -> Result<UserInfo> {
+    pub fn create_user(&self, request: &CreateUserRequest) -> Result<UserInfo> {
         self.post_sync(
             "/v2/users",
             &json!({
@@ -66,10 +60,9 @@ impl SnapdClient {
                 "known": request.known,
             }),
         )
-        .await
     }
 
-    pub async fn remove_user(&self, username: &str) -> Result<()> {
+    pub fn remove_user(&self, username: &str) -> Result<()> {
         self.post_sync(
             "/v2/users",
             &json!({
@@ -77,6 +70,5 @@ impl SnapdClient {
                 "username": username,
             }),
         )
-        .await
     }
 }

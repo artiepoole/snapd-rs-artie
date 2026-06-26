@@ -13,31 +13,28 @@ pub struct Snapshot {
 }
 
 impl SnapdClient {
-    pub async fn list_snapshots(&self) -> Result<Vec<Snapshot>> {
-        self.get("/v2/snapshots").await
+    pub fn list_snapshots(&self) -> Result<Vec<Snapshot>> {
+        self.get("/v2/snapshots")
     }
 
-    pub async fn create_snapshot(&self, snaps: &[&str]) -> Result<ChangeId> {
+    pub fn create_snapshot(&self, snaps: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/snaps",
             &json!({ "action": "snapshot", "snaps": snaps }),
         )
-        .await
     }
 
-    pub async fn restore_snapshot(&self, set_id: u64, snaps: &[&str]) -> Result<ChangeId> {
+    pub fn restore_snapshot(&self, set_id: u64, snaps: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/snapshots",
             &json!({ "action": "restore", "set": set_id, "snaps": snaps }),
         )
-        .await
     }
 
-    pub async fn forget_snapshot(&self, set_id: u64, snaps: &[&str]) -> Result<ChangeId> {
+    pub fn forget_snapshot(&self, set_id: u64, snaps: &[&str]) -> Result<ChangeId> {
         self.post_async(
             "/v2/snapshots",
             &json!({ "action": "forget", "set": set_id, "snaps": snaps }),
         )
-        .await
     }
 }

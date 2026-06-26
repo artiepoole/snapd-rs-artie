@@ -23,16 +23,15 @@ struct ApplyValidationSetRequest {
 }
 
 impl SnapdClient {
-    pub async fn list_validation_sets(&self) -> Result<Vec<ValidationSet>> {
-        self.get("/v2/validation-sets").await
+    pub fn list_validation_sets(&self) -> Result<Vec<ValidationSet>> {
+        self.get("/v2/validation-sets")
     }
 
-    pub async fn get_validation_set(&self, account: &str, name: &str) -> Result<ValidationSet> {
+    pub fn get_validation_set(&self, account: &str, name: &str) -> Result<ValidationSet> {
         self.get(&format!("/v2/validation-sets/{account}/{name}"))
-            .await
     }
 
-    pub async fn apply_validation_set(
+    pub fn apply_validation_set(
         &self,
         account: &str,
         name: &str,
@@ -47,14 +46,12 @@ impl SnapdClient {
                 sequence,
             },
         )
-        .await
     }
 
-    pub async fn forget_validation_set(&self, account: &str, name: &str) -> Result<()> {
+    pub fn forget_validation_set(&self, account: &str, name: &str) -> Result<()> {
         self.post_sync(
             &format!("/v2/validation-sets/{account}/{name}"),
             &json!({ "action": "forget" }),
         )
-        .await
     }
 }

@@ -47,11 +47,11 @@ struct SystemVolumesActionRequest<'a, P: Serialize> {
 }
 
 impl SnapdClient {
-    pub async fn list_system_volumes(&self) -> Result<SystemVolumesResult> {
-        self.get("/v2/system-volumes").await
+    pub fn list_system_volumes(&self) -> Result<SystemVolumesResult> {
+        self.get("/v2/system-volumes")
     }
 
-    pub async fn system_volumes_action<P: Serialize>(
+    pub fn system_volumes_action<P: Serialize>(
         &self,
         action: &str,
         params: &P,
@@ -60,6 +60,5 @@ impl SnapdClient {
             "/v2/system-volumes",
             &SystemVolumesActionRequest { action, params },
         )
-        .await
     }
 }
