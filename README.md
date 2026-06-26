@@ -1,75 +1,198 @@
-# test-team-please-ignore
+# snapd-rs-artie
 
-## snapd-rs
+Unofficial Rust bindings for SnapD. This allows applications in Rust to talk directly to [snapd](https://snapcraft.io/docs/snapd-api) without writing their own API layer.
 
-Rust bindings for snapd. This allows applications in Rust to talk directly to snapd without writing their own API layer.
+This library provides type-safe, async/await bindings to communicate with the snapd daemon over Unix sockets, allowing Rust applications to manage snaps, interfaces, changes, and more without writing their own API layer.
 
-We use AI to generate the endpoint implementations and Rust types.
+## Installation
 
-## snap-rat
+Add this to your `Cargo.toml`:
 
-In <img width="1920" height="1097" alt="image (3)" src="https://github.com/user-attachments/assets/1d7f01f1-8854-4d7f-8815-54fb61a04803" />
-<img width="1920" height="1097" alt="image (2)" src="https://github.com/user-attachments/assets/76c83573-05a1-4982-b394-c20af9fcea90" />
-<img width="1920" height="1097" alt="image (1)" src="https://github.com/user-attachments/assets/f500c79a-4e77-4f38-afa8-7f1ffd7beae9" />
-
-
-<img width="1920" height="1151" alt="image" src="https://github.com/user-attachments/assets/958d968b-c8e3-478d-b126-4dbfbe523b1e" />
-
-### Build requirements
-
-snap-rat statically links [libchafa](https://hpjansson.org/chafa/) for rich terminal image rendering. Install the development package before building:
-
-```
-sudo apt install libchafa-dev
+```toml
+[dependencies]
+snapd-rs-artie = { path = "snapd-rs-artie" }  # or use a version from a registry when published
+tokio = { version = "1", features = ["full"] }
 ```
 
-On terminals that support Kitty, Sixel, or iTerm2 graphics, snap-rat uses those protocols for icon rendering. On other terminals (including Linux VTs and minimal/ASCII terminals), it falls back to chafa's character-art renderer, which selects the best-fitting character and colour for each cell — no runtime `.so` dependency needed.
+## Usage
 
+### Basic Example
 
-## setup
-For megademo.ai. The agent has access to snapd source, so please use
-```
-git clone git@github.com:canonical/snapd.git
-git clone git@github.com:ubuntu/app-center.git
-```
+```rust
+use snapd_rs_artie::{SnapdClient, Result};
 
-to add snapd and appcenter as a subdir.
-
-
-to update snapd to use 6 in order for workshop to work.
-```
-sudo snap refresh --channel=6/stable lxd
-```
-and install workshop
-```
-sudo snap install workshop --channel=latest/edge
-```
-then to initialise
-```
-workshop launch
-```
-and finally
-```
-workshop shell
-> copilot
-```
-to enter the shell tool or alternatively
-```
-# Run copilot interactively
-workshop run copilot
-# Run copilot with a given prompt
-workshop run copilot-prompt <prompt>
-# E.g.
-workshop run copilot-prompt how many times does the letter p occur in raspberry?
-```
-to go yolo mode.
-
-
-# workshop usage
-
-```
-workshop launch
+#[tokio::main]
+async fn main() -> Result<()> {
+    // Create a client connected to the default snapd socket
+    let client = SnapdClient::new();
+    
+    // List all installed snaps
+    let snaps = client.list_snaps().await?;
+    for snap in snaps {
+        println!("{}: {}", snap.name, snap.version);
+    }
+    
+    // Search the store
+    let results = client.find_snaps("firefox", None).await?;
+    println!("Found {} results", results.len());
+    
+    Ok(())
+}
 ```
 
-To see the list of all workshop quick actions, see `workshop.yaml`.
+### Installing a Snap
 
+```rust
+use snapd_rs_artie::{SnapdClient, Result};
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = SnapdClient::new();
+    
+    // Install from the stable channel
+    let change_id = client.install_snap("firefox", Some("stable"), None).await?;
+    println!("Installation started: change ID {:?}", change_id);
+    
+    // Monitor the change
+    loop {
+        let change = client.get_change(change_id).await?;
+        println!("Status: {:?}", change.status);
+        if change.ready {
+            break;
+        }
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    }
+    
+    Ok(())
+}
+```
+
+### Managing Interfaces
+
+```rust
+use snapd_rs_artie::{SnapdClient, Result};
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = SnapdClient::new();
+    
+    // List all interface connections
+    let connections = client.list_connections(None, None).await?;
+    for plug in connections.plugs {
+        println!("Plug: {}:{}", plug.snap, plug.plug);
+    }
+    
+    // Connect an interface
+    let change_id = client
+        .connect_interface("my-snap", "home", None, None)
+        .await?;
+    println!("Connection started: change ID {:?}", change_id);
+    
+    Ok(())
+}
+```
+
+### Using Different Sockets
+
+```rust
+use snapd_rs_artie::SnapdClient;
+
+// Default socket for unconfined processes
+let client = SnapdClient::new();
+
+// Socket for confined snaps
+let client = SnapdClient::new_for_snap();
+
+// Custom filesystem socket
+let client = SnapdClient::with_socket("/custom/path/snapd.socket");
+
+// Abstract socket (for snap confinement)
+let client = SnapdClient::new_abstract("io.snapcraft.Launcher");
+```
+
+## Building
+
+### Prerequisites
+
+- Rust 1.83+ (edition 2024)
+- Access to a running snapd daemon
+
+### Build the Library
+
+```bash
+cargo build --release
+```
+
+### Run Tests
+
+The library includes integration tests that require a running snapd daemon:
+
+```bash
+# Run all tests
+cargo test
+
+# Run only unit tests (no snapd required)
+cargo test --lib
+
+# Run integration tests (requires snapd)
+cargo test --test integration_tests
+```
+
+### Check and Lint
+
+```bash
+# Check for compile errors
+cargo check
+
+# Run clippy linter
+cargo clippy
+
+# Format code
+cargo fmt
+```
+
+## Project Structure
+
+```
+snapd-rs-artie/
+├── src/
+│   ├── lib.rs              # Public API exports
+│   ├── client.rs           # SnapdClient and HTTP layer
+│   ├── error.rs            # Error types
+│   ├── types.rs            # Common types and enums
+│   └── api/                # API endpoint implementations
+│       ├── snaps.rs        # Snap management
+│       ├── interfaces.rs   # Interface connections
+│       ├── changes.rs      # Change tracking
+│       ├── store.rs        # Store search
+│       ├── prompting.rs    # Prompting API
+│       └── ...             # Other endpoints
+└── tests/
+    ├── integration_tests.rs
+    └── mock_snapd.rs
+```
+
+## API Coverage
+
+The library provides access to most snapd API endpoints. See [`ENDPOINTS.md`](./ENDPOINTS.md) for a detailed list of implemented endpoints.
+
+## Development
+
+This project uses AI-assisted development to generate endpoint implementations and type definitions from the snapd API specification.
+
+## License
+
+This project is open source. See LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+- Code is formatted with `cargo fmt`
+- Lints pass with `cargo clippy`
+- Tests pass with `cargo test`
+- Commit messages follow conventional commits format (`feat:`, `fix:`, `refactor:`, etc.)
+
+## Related Projects
+
+- [snapd](https://github.com/snapcore/snapd) - The snap daemon
+- [snapcraft](https://snapcraft.io/) - Official snap documentation

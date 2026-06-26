@@ -7,7 +7,6 @@
 /// - Distinction between /v2/snaps (package management) and /v2/snapshots (data snapshots)
 /// - Correct use of "set" field in snapshot operations (not "id")
 /// - Proper action names and payload structures
-
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -101,7 +100,7 @@ mod tests {
     /// Test snap action names according to snapd API
     #[test]
     fn test_snap_action_names() {
-        let valid_snap_actions = vec![
+        let valid_snap_actions = [
             "install", "remove", "refresh", "revert", "enable", "disable",
             "snapshot", // Creates snapshots - uses /v2/snaps
         ];
@@ -113,7 +112,7 @@ mod tests {
     /// Test snapshot action names according to snapd API
     #[test]
     fn test_snapshot_action_names() {
-        let valid_snapshot_actions = vec![
+        let valid_snapshot_actions = [
             "restore", // Uses /v2/snapshots
             "forget",  // Uses /v2/snapshots
             "check",   // Uses /v2/snapshots

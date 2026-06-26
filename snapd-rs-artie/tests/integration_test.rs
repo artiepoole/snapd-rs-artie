@@ -5,7 +5,7 @@
 
 mod mock_snapd;
 
-use snapd_rs::SnapdClient;
+use snapd_rs_artie::SnapdClient;
 
 /// Test listing snaps - with mock snapd
 #[tokio::test]

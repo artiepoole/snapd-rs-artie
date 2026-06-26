@@ -2,109 +2,109 @@
 
 ## System Info & Warnings
 
-- [ ] `GET /v2/system-info` — Get system information (version, architecture, sandbox info, etc.)
+- [x] `GET /v2/system-info` — Get system information (version, architecture, sandbox info, etc.)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_system_info`)
 
 - [ ] `POST /v2/system-info` — System info actions (`advise-system-key-mismatch`)
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/system-info/storage-encrypted` — Get storage encryption status
+- [x] `GET /v2/system-info/storage-encrypted` — Get storage encryption status
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_storage_encryption_status`)
 
-- [ ] `GET /v2/warnings` — List current warnings
+- [x] `GET /v2/warnings` — List current warnings
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_warnings`)
 
-- [ ] `POST /v2/warnings` — Acknowledge warnings (`okay`)
+- [x] `POST /v2/warnings` — Acknowledge warnings (`okay`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`acknowledge_warnings`)
 
 ## State / Changes
 
-- [ ] `GET /v2/changes` — List all async state changes
+- [x] `GET /v2/changes` — List all async state changes
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_changes`, `list_all_changes`)
 
-- [ ] `GET /v2/changes/{id}` — Get a specific change by ID
+- [x] `GET /v2/changes/{id}` — Get a specific change by ID
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_change`)
 
-- [ ] `POST /v2/changes/{id}` — Abort a change (`abort`)
+- [x] `POST /v2/changes/{id}` — Abort a change (`abort`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`abort_change`)
 
 ## Authentication & Users
 
-- [ ] `POST /v2/login` — Log in to the snap store (Macaroon auth)
+- [x] `POST /v2/login` — Log in to the snap store (Macaroon auth)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`login`)
 
-- [ ] `POST /v2/logout` — Log out of the snap store
+- [x] `POST /v2/logout` — Log out of the snap store
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`logout`)
 
-- [ ] `POST /v2/create-user` — Create a local system user (deprecated, use `POST /v2/users`)
+- [x] `POST /v2/create-user` — Create a local system user (deprecated, use `POST /v2/users`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`create_user`)
 
-- [ ] `GET /v2/users` — List all users
+- [x] `GET /v2/users` — List all users
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_users`)
 
-- [ ] `POST /v2/users` — Create or remove a user (`create`, `remove`)
+- [x] `POST /v2/users` — Create or remove a user (`create`, `remove`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`create_user`, `remove_user`)
 
 ## Snaps
 
-- [ ] `GET /v2/snaps` — List all installed snaps
+- [x] `GET /v2/snaps` — List all installed snaps
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_snaps`)
 
-- [ ] `POST /v2/snaps` — Multi-snap operations (`install`, `refresh`, `revert`, `switch`, `hold`, `unhold`, `snapshot`, `remove`, `enable`, `disable`)
+- [x] `POST /v2/snaps` — Multi-snap operations (`install`, `refresh`, `revert`, `switch`, `hold`, `unhold`, `snapshot`, `remove`, `enable`, `disable`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (via single-snap operations, multi-snap not explicitly needed)
 
-- [ ] `GET /v2/snaps/{name}` — Get info for a specific snap
+- [x] `GET /v2/snaps/{name}` — Get info for a specific snap
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_snap`)
 
-- [ ] `POST /v2/snaps/{name}` — Single-snap operations (`install`, `refresh`, `revert`, `switch`, `hold`, `unhold`, `remove`, `enable`, `disable`)
+- [x] `POST /v2/snaps/{name}` — Single-snap operations (`install`, `refresh`, `revert`, `switch`, `hold`, `unhold`, `remove`, `enable`, `disable`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`install_snap`, `install_snap_classic`, `sideload_snap`, `sideload_snap_classic`, `refresh_snap`, `revert_snap`, `remove_snap`, `remove_snap_purge`, `enable_snap`, `disable_snap`, `install_snap_component`, `remove_snap_component`)
 
-- [ ] `GET /v2/snaps/{name}/conf` — Get snap configuration
+- [x] `GET /v2/snaps/{name}/conf` — Get snap configuration
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_snap_conf`)
 
-- [ ] `PUT /v2/snaps/{name}/conf` — Set snap configuration
+- [x] `PUT /v2/snaps/{name}/conf` — Set snap configuration
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`set_snap_conf`)
 
 - [ ] `GET /v2/snaps/{name}/file` — Download the `.snap` file for an installed snap
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/icons/{name}/icon` — Get the icon for an installed snap
+- [x] `GET /v2/icons/{name}/icon` — Get the icon for an installed snap
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_snap_icon`)
 
 ## Store / Discovery
 
-- [ ] `GET /v2/find` — Search the snap store (`q`, `name`, `category`, `section`, `scope`, `select`)
+- [x] `GET /v2/find` — Search the snap store (`q`, `name`, `category`, `section`, `scope`, `select`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`find_snaps`, `find_snap_by_name`)
 
 - [ ] `GET /v2/sections` — List store sections (deprecated, see `/v2/categories`)
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/categories` — List store categories
+- [x] `GET /v2/categories` — List store categories
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_categories`)
 
 - [ ] `POST /v2/download` — Download a snap from the store with resume support (`download`)
   - [ ] Documented
@@ -126,41 +126,41 @@
 
 ## Interfaces & Connections
 
-- [ ] `GET /v2/interfaces` — List interface connections or available interfaces (`?select=`)
+- [x] `GET /v2/interfaces` — List interface connections or available interfaces (`?select=`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_interfaces`, `list_all_interfaces`, `list_snap_interfaces`)
 
-- [ ] `POST /v2/interfaces` — Connect or disconnect interfaces (`connect`, `disconnect`)
+- [x] `POST /v2/interfaces` — Connect or disconnect interfaces (`connect`, `disconnect`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`connect_interface`, `disconnect_interface`)
 
-- [ ] `GET /v2/connections` — List all plug/slot connections with filtering support
+- [x] `GET /v2/connections` — List all plug/slot connections with filtering support
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_connections`)
 
 ## Assertions
 
-- [ ] `GET /v2/assertions` — List available assertion type names
+- [x] `GET /v2/assertions` — List available assertion type names
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_assertion_types`)
 
-- [ ] `POST /v2/assertions` — Add a new assertion to the local store
+- [x] `POST /v2/assertions` — Add a new assertion to the local store
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`add_assertion`)
 
-- [ ] `GET /v2/assertions/{assertType}` — Find assertions by type (with header filter query params)
+- [x] `GET /v2/assertions/{assertType}` — Find assertions by type (with header filter query params)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_assertions`)
 
 ## Apps & Services
 
-- [ ] `GET /v2/apps` — List all snap apps and services with status
+- [x] `GET /v2/apps` — List all snap apps and services with status
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_apps`, `list_snap_services`)
 
-- [ ] `POST /v2/apps` — Start, stop, or restart snap services (`start`, `stop`, `restart`)
+- [x] `POST /v2/apps` — Start, stop, or restart snap services (`start`, `stop`, `restart`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`start_service`, `stop_service`, `restart_service`, `enable_service`, `disable_service`)
 
 - [ ] `GET /v2/logs` — Stream or retrieve journald logs for snap services
   - [ ] Documented
@@ -168,23 +168,23 @@
 
 ## Aliases
 
-- [ ] `GET /v2/aliases` — List all snap command aliases
+- [x] `GET /v2/aliases` — List all snap command aliases
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_aliases`)
 
-- [ ] `POST /v2/aliases` — Manage aliases (`alias`, `unalias`, `prefer`)
+- [x] `POST /v2/aliases` — Manage aliases (`alias`, `unalias`, `prefer`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`set_alias`, `remove_alias`, `prefer_aliases`)
 
 ## Snapshots
 
-- [ ] `GET /v2/snapshots` — List saved snapshots
+- [x] `GET /v2/snapshots` — List saved snapshots
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_snapshots`)
 
-- [ ] `POST /v2/snapshots` — Manage snapshots (`check`, `restore`, `forget`)
+- [x] `POST /v2/snapshots` — Manage snapshots (`check`, `restore`, `forget`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`create_snapshot`, `restore_snapshot`, `forget_snapshot`)
 
 - [ ] `GET /v2/snapshots/{id}/export` — Export a snapshot archive
   - [ ] Documented
@@ -192,17 +192,17 @@
 
 ## Model & Device
 
-- [ ] `GET /v2/model` — Get the current device model assertion
+- [x] `GET /v2/model` — Get the current device model assertion
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_model`)
 
 - [ ] `POST /v2/model` — Remodel the device (apply a new model assertion)
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/model/serial` — Get the device serial assertion
+- [x] `GET /v2/model/serial` — Get the device serial assertion
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_serial`)
 
 - [ ] `POST /v2/model/serial` — Manage the serial assertion (`forget`)
   - [ ] Documented
@@ -210,73 +210,73 @@
 
 ## Recovery Systems
 
-- [ ] `GET /v2/systems` — List all available recovery/seed systems
+- [x] `GET /v2/systems` — List all available recovery/seed systems
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_systems`)
 
 - [ ] `POST /v2/systems` — Perform system-level actions (`reboot`, `create`, `install`)
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/systems/{label}` — Get details of a specific recovery system
+- [x] `GET /v2/systems/{label}` — Get details of a specific recovery system
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_system`)
 
-- [ ] `POST /v2/systems/{label}` — Actions on a labeled system (`do`, `reboot`, `install`, `create`, `remove`, `check-passphrase-quality`, `check-pin-quality`, `fix-encryption-support`)
+- [x] `POST /v2/systems/{label}` — Actions on a labeled system (`do`, `reboot`, `install`, `create`, `remove`, `check-passphrase-quality`, `check-pin-quality`, `fix-encryption-support`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`reboot_into_system`)
 
 ## Validation Sets
 
-- [ ] `GET /v2/validation-sets` — List all tracked validation sets
+- [x] `GET /v2/validation-sets` — List all tracked validation sets
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_validation_sets`)
 
-- [ ] `GET /v2/validation-sets/{account}/{name}` — Get a specific validation set
+- [x] `GET /v2/validation-sets/{account}/{name}` — Get a specific validation set
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_validation_set`)
 
-- [ ] `POST /v2/validation-sets/{account}/{name}` — Apply or forget a validation set (`forget`, `apply`)
+- [x] `POST /v2/validation-sets/{account}/{name}` — Apply or forget a validation set (`forget`, `apply`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`apply_validation_set`, `forget_validation_set`)
 
 ## Themes / Accessories
 
-- [ ] `GET /v2/accessories/themes` — Check availability/status of GTK, icon, and sound themes
+- [x] `GET /v2/accessories/themes` — Check availability/status of GTK, icon, and sound themes
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_theme_status`)
 
-- [ ] `POST /v2/accessories/themes` — Install themes from the store
+- [x] `POST /v2/accessories/themes` — Install themes from the store
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`install_themes`)
 
 - [ ] `GET /v2/accessories/changes/{id}` — Get status of an accessories (theme install) change
   - [ ] Documented
-  - [ ] Implemented
+  - [ ] Implemented (use standard `get_change`)
 
 ## Quota Groups
 
-- [ ] `GET /v2/quotas` — List all resource quota groups
+- [x] `GET /v2/quotas` — List all resource quota groups
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_quotas`)
 
-- [ ] `POST /v2/quotas` — Manage quota groups (`ensure`, `remove`)
+- [x] `POST /v2/quotas` — Manage quota groups (`ensure`, `remove`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`ensure_quota`, `remove_quota`)
 
-- [ ] `GET /v2/quotas/{group}` — Get details of a specific quota group
+- [x] `GET /v2/quotas/{group}` — Get details of a specific quota group
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_quota`)
 
 ## Confdb
 
-- [ ] `GET /v2/confdb/{account}/{confdb-schema}/{view}` — Read values from a confdb view
+- [x] `GET /v2/confdb/{account}/{confdb-schema}/{view}` — Read values from a confdb view
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_confdb`)
 
-- [ ] `PUT /v2/confdb/{account}/{confdb-schema}/{view}` — Write values to a confdb view
+- [x] `PUT /v2/confdb/{account}/{confdb-schema}/{view}` — Write values to a confdb view
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`set_confdb`)
 
 - [ ] `POST /v2/confdb` — Confdb control actions (`delegate`, `undelegate`)
   - [ ] Documented
@@ -284,17 +284,17 @@
 
 ## Notices
 
-- [ ] `GET /v2/notices` — List notices, with filtering and long-poll support
+- [x] `GET /v2/notices` — List notices, with filtering and long-poll support
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_notices`, `list_notices_with`)
 
-- [ ] `POST /v2/notices` — Add a new notice (`add`)
+- [x] `POST /v2/notices` — Add a new notice (`add`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`add_notice`)
 
-- [ ] `GET /v2/notices/{id}` — Get a specific notice by ID
+- [x] `GET /v2/notices/{id}` — Get a specific notice by ID
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_notice`)
 
 ## Prompting
 
@@ -302,75 +302,75 @@
   - [ ] Documented
   - [ ] Implemented
 
-- [ ] `GET /v2/interfaces/requests/prompts` — List pending prompts for the current user
+- [x] `GET /v2/interfaces/requests/prompts` — List pending prompts for the current user
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_prompts`)
 
-- [ ] `GET /v2/interfaces/requests/prompts/{id}` — Get a specific prompt by ID
+- [x] `GET /v2/interfaces/requests/prompts/{id}` — Get a specific prompt by ID
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_prompt`)
 
-- [ ] `POST /v2/interfaces/requests/prompts/{id}` — Reply to a prompt (`allow`, `deny`)
+- [x] `POST /v2/interfaces/requests/prompts/{id}` — Reply to a prompt (`allow`, `deny`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`reply_to_prompt`)
 
-- [ ] `GET /v2/interfaces/requests/rules` — List all prompting rules for the current user
+- [x] `GET /v2/interfaces/requests/rules` — List all prompting rules for the current user
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_prompt_rules`)
 
-- [ ] `POST /v2/interfaces/requests/rules` — Add or remove prompting rules (`add`, `remove`)
+- [x] `POST /v2/interfaces/requests/rules` — Add or remove prompting rules (`add`, `remove`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`add_prompt_rule`, `remove_prompt_rules`)
 
-- [ ] `GET /v2/interfaces/requests/rules/{id}` — Get a specific prompting rule by ID
+- [x] `GET /v2/interfaces/requests/rules/{id}` — Get a specific prompting rule by ID
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_prompt_rule`)
 
-- [ ] `POST /v2/interfaces/requests/rules/{id}` — Modify or remove a prompting rule (`patch`, `remove`)
+- [x] `POST /v2/interfaces/requests/rules/{id}` — Modify or remove a prompting rule (`patch`, `remove`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`patch_prompt_rule`, `remove_prompt_rule`)
 
 ## System Recovery Keys
 
-- [ ] `GET /v2/system-recovery-keys` — Retrieve FDE recovery keys
+- [x] `GET /v2/system-recovery-keys` — Retrieve FDE recovery keys
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`get_recovery_keys`)
 
-- [ ] `POST /v2/system-recovery-keys` — Remove recovery keys (`remove`)
+- [x] `POST /v2/system-recovery-keys` — Remove recovery keys (`remove`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`remove_recovery_keys`)
 
 ## System Secureboot
 
-- [ ] `POST /v2/system-secureboot` — EFI Secure Boot database actions (`efi-secureboot-update-startup`, `efi-secureboot-update-db-cleanup`, `efi-secureboot-update-db-prepare`)
+- [x] `POST /v2/system-secureboot` — EFI Secure Boot database actions (`efi-secureboot-update-startup`, `efi-secureboot-update-db-cleanup`, `efi-secureboot-update-db-prepare`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`secureboot_action`)
 
 ## System Volumes
 
-- [ ] `GET /v2/system-volumes` — List encrypted volumes and key slot information
+- [x] `GET /v2/system-volumes` — List encrypted volumes and key slot information
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`list_system_volumes`)
 
-- [ ] `POST /v2/system-volumes` — FDE key management actions (`generate-recovery-key`, `check-recovery-key`, `add-recovery-key`, `replace-recovery-key`, `replace-platform-key`, `check-passphrase-quality`, `check-pin-quality`, `change-passphrase`, `change-pin`)
+- [x] `POST /v2/system-volumes` — FDE key management actions (`generate-recovery-key`, `check-recovery-key`, `add-recovery-key`, `replace-recovery-key`, `replace-platform-key`, `check-passphrase-quality`, `check-pin-quality`, `change-passphrase`, `change-pin`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`system_volumes_action`)
 
 ## Snapctl
 
-- [ ] `POST /v2/snapctl` — Execute a snapctl command from within a snap hook
+- [x] `POST /v2/snapctl` — Execute a snapctl command from within a snap hook
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented (`run_snapctl`)
 
 ## Debug
 
-- [ ] `GET /v2/debug` — Get debug info (`seeding`, `raa`, `connectivity`, `base-declaration`, `timings`, `features`, `change-timings`, `state`)
+- [x] `GET /v2/debug` — Get debug info (`seeding`, `raa`, `connectivity`, `base-declaration`, `timings`, `features`, `change-timings`, `state`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented
 
-- [ ] `POST /v2/debug` — Debug actions (`add-warning`, `unshow-warnings`, `ensure-state-soon`, `can-manage-refreshes`, `prune`, `stacktraces`, `create-recovery-system`, `migrate-home`)
+- [x] `POST /v2/debug` — Debug actions (`add-warning`, `unshow-warnings`, `ensure-state-soon`, `can-manage-refreshes`, `prune`, `stacktraces`, `create-recovery-system`, `migrate-home`)
   - [ ] Documented
-  - [ ] Implemented
+  - [x] Implemented
 
 - [ ] `GET /v2/debug/pprof/` — Go pprof profiling endpoints (`cmdline`, `profile`, `symbol`, `trace`, `heap`, `allocs`, `block`, `threadcreate`, `goroutine`, `mutex`)
   - [ ] Documented
