@@ -35,20 +35,19 @@ pub struct TaskProgress {
 }
 
 impl SnapdClient {
-    pub async fn list_changes(&self) -> Result<Vec<Change>> {
-        self.get("/v2/changes").await
+    pub fn list_changes(&self) -> Result<Vec<Change>> {
+        self.get("/v2/changes")
     }
 
-    pub async fn list_all_changes(&self) -> Result<Vec<Change>> {
-        self.get("/v2/changes?select=all").await
+    pub fn list_all_changes(&self) -> Result<Vec<Change>> {
+        self.get("/v2/changes?select=all")
     }
 
-    pub async fn get_change(&self, id: &str) -> Result<Change> {
-        self.get(&format!("/v2/changes/{id}")).await
+    pub fn get_change(&self, id: &str) -> Result<Change> {
+        self.get(&format!("/v2/changes/{id}"))
     }
 
-    pub async fn abort_change(&self, id: &str) -> Result<Change> {
+    pub fn abort_change(&self, id: &str) -> Result<Change> {
         self.post_sync(&format!("/v2/changes/{id}"), &json!({ "action": "abort" }))
-            .await
     }
 }

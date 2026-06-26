@@ -48,16 +48,16 @@ pub struct Category {
 }
 
 impl SnapdClient {
-    pub async fn find_snaps(&self, query: &str) -> Result<Vec<StoreSnap>> {
-        self.get(&format!("/v2/find?q={query}")).await
+    pub fn find_snaps(&self, query: &str) -> Result<Vec<StoreSnap>> {
+        self.get(&format!("/v2/find?q={query}"))
     }
 
-    pub async fn find_snap_by_name(&self, name: &str) -> Result<Option<StoreSnap>> {
-        let mut snaps: Vec<StoreSnap> = self.get(&format!("/v2/find?name={name}")).await?;
+    pub fn find_snap_by_name(&self, name: &str) -> Result<Option<StoreSnap>> {
+        let mut snaps: Vec<StoreSnap> = self.get(&format!("/v2/find?name={name}"))?;
         Ok(snaps.drain(..).next())
     }
 
-    pub async fn list_categories(&self) -> Result<Vec<Category>> {
-        self.get("/v2/categories").await
+    pub fn list_categories(&self) -> Result<Vec<Category>> {
+        self.get("/v2/categories")
     }
 }

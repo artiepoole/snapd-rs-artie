@@ -51,15 +51,15 @@ pub struct QuotaGroup {
 }
 
 impl SnapdClient {
-    pub async fn list_quotas(&self) -> Result<Vec<QuotaGroup>> {
-        self.get("/v2/quotas").await
+    pub fn list_quotas(&self) -> Result<Vec<QuotaGroup>> {
+        self.get("/v2/quotas")
     }
 
-    pub async fn get_quota(&self, group: &str) -> Result<QuotaGroup> {
-        self.get(&format!("/v2/quotas/{group}")).await
+    pub fn get_quota(&self, group: &str) -> Result<QuotaGroup> {
+        self.get(&format!("/v2/quotas/{group}"))
     }
 
-    pub async fn ensure_quota(&self, group: &str, constraints: QuotaValues) -> Result<ChangeId> {
+    pub fn ensure_quota(&self, group: &str, constraints: QuotaValues) -> Result<ChangeId> {
         self.post_async(
             "/v2/quotas",
             &json!({
@@ -68,10 +68,9 @@ impl SnapdClient {
                 "constraints": constraints,
             }),
         )
-        .await
     }
 
-    pub async fn remove_quota(&self, group: &str) -> Result<ChangeId> {
+    pub fn remove_quota(&self, group: &str) -> Result<ChangeId> {
         self.post_async(
             "/v2/quotas",
             &json!({
@@ -79,6 +78,5 @@ impl SnapdClient {
                 "group-name": group,
             }),
         )
-        .await
     }
 }

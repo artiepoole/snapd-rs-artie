@@ -85,8 +85,8 @@ fn handle_new_endpoint() -> String {
 
 3. Add test in `integration_test.rs`:
 ```rust
-#[tokio::test]
-async fn test_new_endpoint() {
+#[test]
+fn test_new_endpoint() {
     let mock = MockSnapd::start().expect("Failed to start mock snapd");
     let client = SnapdClient::with_socket(mock.socket_path().to_string_lossy().to_string());
     // ... test assertions

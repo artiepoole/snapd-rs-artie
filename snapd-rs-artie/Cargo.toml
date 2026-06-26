@@ -6,14 +6,10 @@ description = "Unnofficial Rust client library for the snapd REST API"
 license = "GPL-3.0"
 repository = "https://github.com/artiepoole/snapd-rs-artie"
 readme = "README.md"
-keywords = ["snapd", "snap", "async", "client", "api"]
-categories = ["api-bindings", "asynchronous"]
+keywords = ["snapd", "snap", "client", "api"]
+categories = ["api-bindings"]
 
 [dependencies]
-tokio.workspace = true
-hyper.workspace = true
-hyper-util.workspace = true
-http-body-util.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true

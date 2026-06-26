@@ -1,4 +1,3 @@
-use hyper::body::Bytes;
 use serde::Deserialize;
 
 use crate::api::model::AssertionJson;
@@ -11,22 +10,16 @@ struct AssertionTypesResponse {
 }
 
 impl SnapdClient {
-    pub async fn list_assertion_types(&self) -> Result<Vec<String>> {
-        let response: AssertionTypesResponse = self.get("/v2/assertions").await?;
+    pub fn list_assertion_types(&self) -> Result<Vec<String>> {
+        let response: AssertionTypesResponse = self.get("/v2/assertions")?;
         Ok(response.types)
     }
 
-    pub async fn add_assertion(&self, assertion: &str) -> Result<()> {
-        self.post_raw_sync(
-            "/v2/assertions",
-            Bytes::from(assertion.to_owned()),
-            "text/plain",
-        )
-        .await
+    pub fn add_assertion(&self, assertion: &str) -> Result<()> {
+        self.post_raw_sync("/v2/assertions", assertion.as_bytes(), "text/plain")
     }
 
-    pub async fn get_assertions(&self, assert_type: &str) -> Result<Vec<AssertionJson>> {
+    pub fn get_assertions(&self, assert_type: &str) -> Result<Vec<AssertionJson>> {
         self.get(&format!("/v2/assertions/{assert_type}?json=true"))
-            .await
     }
 }

@@ -75,19 +75,17 @@ pub struct Connections {
 }
 
 impl SnapdClient {
-    pub async fn list_interfaces(&self) -> Result<Vec<Interface>> {
-        self.get("/v2/interfaces?select=connected").await
+    pub fn list_interfaces(&self) -> Result<Vec<Interface>> {
+        self.get("/v2/interfaces?select=connected")
     }
 
-    pub async fn list_all_interfaces(&self) -> Result<Vec<Interface>> {
+    pub fn list_all_interfaces(&self) -> Result<Vec<Interface>> {
         self.get("/v2/interfaces?plugs=true&slots=true&select=all")
-            .await
     }
 
-    pub async fn list_snap_interfaces(&self, snap_name: &str) -> Result<Vec<Interface>> {
+    pub fn list_snap_interfaces(&self, snap_name: &str) -> Result<Vec<Interface>> {
         Ok(self
-            .list_all_interfaces()
-            .await?
+            .list_all_interfaces()?
             .into_iter()
             .filter(|interface| {
                 interface
@@ -102,12 +100,12 @@ impl SnapdClient {
             .collect())
     }
 
-    pub async fn list_connections(&self) -> Result<Vec<Connection>> {
-        let resp: Connections = self.get("/v2/connections").await?;
+    pub fn list_connections(&self) -> Result<Vec<Connection>> {
+        let resp: Connections = self.get("/v2/connections")?;
         Ok(resp.established)
     }
 
-    pub async fn connect_interface(
+    pub fn connect_interface(
         &self,
         plug_snap: &str,
         plug_name: &str,
@@ -122,10 +120,9 @@ impl SnapdClient {
                 "slots": [{ "snap": slot_snap, "slot": slot_name }],
             }),
         )
-        .await
     }
 
-    pub async fn disconnect_interface(
+    pub fn disconnect_interface(
         &self,
         plug_snap: &str,
         plug_name: &str,
@@ -140,6 +137,5 @@ impl SnapdClient {
                 "slots": [{ "snap": slot_snap, "slot": slot_name }],
             }),
         )
-        .await
     }
 }

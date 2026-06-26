@@ -16,11 +16,11 @@ pub struct SnapctlResponse {
 }
 
 impl SnapdClient {
-    pub async fn run_snapctl(&self, context_id: &str, args: &[&str]) -> Result<SnapctlResponse> {
+    pub fn run_snapctl(&self, context_id: &str, args: &[&str]) -> Result<SnapctlResponse> {
         let request = SnapctlRequest {
             context_id: context_id.to_string(),
             args: args.iter().map(|arg| (*arg).to_string()).collect(),
         };
-        self.post_sync("/v2/snapctl", &request).await
+        self.post_sync("/v2/snapctl", &request)
     }
 }

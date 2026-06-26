@@ -1,22 +1,22 @@
 # snapd-rs-artie
 
-A type-safe, async Rust client library for the [snapd REST API](https://snapcraft.io/docs/snapd-api). This library enables Rust applications to interact with the snap daemon over Unix sockets to manage snaps, interfaces, services, and more.
+A type-safe, synchronous Rust client library for the [snapd REST API](https://snapcraft.io/docs/snapd-api). This library enables Rust applications to interact with the snap daemon over Unix sockets to manage snaps, interfaces, services, and more.
 
 ## Features
 
-- **Async/await support** - Built on tokio and hyper for high-performance async I/O
+- **Synchronous, blocking API** - Simple blocking calls with no async runtime required
 - **Type-safe API** - Strongly-typed request/response models with serde
 - **Unix socket communication** - Direct communication with snapd over `/run/snapd.socket`
 - **Comprehensive coverage** - Supports 70+ snapd API endpoints across all major categories
 - **Snap confinement support** - Works both outside and inside snap confinement
-- **Change tracking** - Monitor async operations with built-in change polling
+- **Change tracking** - Monitor long-running operations with built-in change polling
 
 ## Supported API Categories
 
 - ✅ **Snaps** - Install, remove, refresh, revert, enable/disable snaps
 - ✅ **Store** - Search and discover snaps in the store
 - ✅ **Interfaces** - Connect/disconnect plugs and slots
-- ✅ **Changes** - Track and abort async operations
+- ✅ **Changes** - Track and abort long-running operations
 - ✅ **Apps & Services** - Start, stop, restart snap services
 - ✅ **Aliases** - Manage snap command aliases
 - ✅ **Snapshots** - Create, restore, and manage snapshots
@@ -47,12 +47,11 @@ snapd-rs-artie = "..."
 ```rust
 use snapd_rs_artie::{SnapdClient, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // List installed snaps
-    let snaps = client.list_snaps().await?;
+    let snaps = client.list_snaps()?;
     for snap in snaps {
         println!("{}: {} ({})", snap.name, snap.version, snap.channel);
     }
@@ -68,17 +67,16 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::{SnapdClient, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // Install from a specific channel
-    let change_id = client.install_snap("firefox", Some("stable")).await?;
+    let change_id = client.install_snap("firefox", Some("stable"))?;
     println!("Installation started: {}", change_id);
     
     // Wait for completion
     loop {
-        let change = client.get_change(&change_id).await?;
+        let change = client.get_change(&change_id)?;
         println!("Status: {:?}", change.status);
         
         if change.ready {
@@ -90,7 +88,7 @@ async fn main() -> Result<()> {
             break;
         }
         
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
     
     Ok(())
@@ -102,12 +100,11 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::SnapdClient;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // Search for snaps
-    let results = client.find_snaps("firefox").await?;
+    let results = client.find_snaps("firefox")?;
     
     for snap in results {
         println!("{}: {}", snap.name, snap.summary);
@@ -124,18 +121,17 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::SnapdClient;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // List all services
-    let apps = client.list_apps().await?;
+    let apps = client.list_apps()?;
     for app in apps.iter().filter(|a| a.daemon.is_some()) {
         println!("{}.{}: {:?}", app.snap, app.name, app.active);
     }
     
     // Restart a service
-    let change_id = client.restart_service(&["my-snap.my-service"]).await?;
+    let change_id = client.restart_service(&["my-snap.my-service"])?;
     
     Ok(())
 }
@@ -146,12 +142,11 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::SnapdClient;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // List all connections
-    let connections = client.list_connections().await?;
+    let connections = client.list_connections()?;
     
     for conn in connections {
         println!("{}:{} -> {}:{}",
@@ -166,7 +161,7 @@ async fn main() -> Result<()> {
         "home",        // plug name
         None,          // slot snap (None for system)
         None,          // slot name (None = same as plug)
-    ).await?;
+    )?;
     
     Ok(())
 }
@@ -177,15 +172,14 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::SnapdClient;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // Create a snapshot of specific snaps
-    let change_id = client.create_snapshot(&["firefox", "thunderbird"]).await?;
+    let change_id = client.create_snapshot(&["firefox", "thunderbird"])?;
     
     // List all snapshots
-    let snapshots = client.list_snapshots().await?;
+    let snapshots = client.list_snapshots()?;
     for snapshot in snapshots {
         println!("Snapshot {}: {:?}", snapshot.id, snapshot.snaps);
     }
@@ -200,12 +194,11 @@ async fn main() -> Result<()> {
 use snapd_rs_artie::SnapdClient;
 use serde_json::json;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // Get configuration
-    let conf = client.get_snap_conf("my-snap", &["key1", "key2"]).await?;
+    let conf = client.get_snap_conf("my-snap", &["key1", "key2"])?;
     println!("Current config: {}", conf);
     
     // Set configuration
@@ -213,7 +206,7 @@ async fn main() -> Result<()> {
         "key1": "value1",
         "key2": 42
     });
-    client.set_snap_conf("my-snap", new_conf).await?;
+    client.set_snap_conf("my-snap", new_conf)?;
     
     Ok(())
 }
@@ -244,11 +237,10 @@ The library uses a custom `Result<T>` type with a comprehensive `SnapdError` enu
 ```rust
 use snapd_rs_artie::{SnapdClient, SnapdError};
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let client = SnapdClient::new();
     
-    match client.get_snap("nonexistent-snap").await {
+    match client.get_snap("nonexistent-snap") {
         Ok(snap) => println!("Found: {}", snap.name),
         Err(SnapdError::SnapNotFound) => println!("Snap not found"),
         Err(SnapdError::PermissionDenied) => println!("Access denied"),
@@ -282,12 +274,10 @@ cargo test --test integration_tests
 
 The library is built on:
 
-- **[tokio](https://tokio.rs/)** - Async runtime
-- **[hyper](https://hyper.rs/)** - HTTP client
+- **[std::os::unix::net](https://doc.rust-lang.org/std/os/unix/net/)** - Blocking Unix socket I/O
 - **[serde](https://serde.rs/)** - Serialization/deserialization
-- **[hyper-util](https://docs.rs/hyper-util/)** - Unix socket support
 
-Communication happens over Unix domain sockets using HTTP/1.1, matching snapd's protocol.
+Communication happens over Unix domain sockets using a small built-in HTTP/1.1 client, matching snapd's protocol.
 
 ## License
 

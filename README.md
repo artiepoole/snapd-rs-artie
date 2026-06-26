@@ -7,7 +7,7 @@
 
 A Vibe coded PoC of unofficial Rust bindings for the snapd API (for interacting with the Ubuntu/Canonical) snap store. This allows applications in Rust to talk directly to [snapd](https://snapcraft.io/docs/snapd-api) without writing their own API layer.
 
-This library provides type-safe, async/await bindings to communicate with the snapd daemon over Unix sockets, allowing Rust applications to manage snaps, interfaces, changes, and more without writing their own API layer.
+This library provides type-safe, synchronous (blocking) bindings to communicate with the snapd daemon over Unix sockets, allowing Rust applications to manage snaps, interfaces, changes, and more without writing their own API layer.
 
 ## Installation
 
@@ -16,7 +16,6 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 snapd-rs-artie = { path = "snapd-rs-artie" }  # or use a version from a registry when published
-tokio = { version = "1", features = ["full"] }
 ```
 
 ## Usage
@@ -26,19 +25,18 @@ tokio = { version = "1", features = ["full"] }
 ```rust
 use snapd_rs_artie::{SnapdClient, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     // Create a client connected to the default snapd socket
     let client = SnapdClient::new();
     
     // List all installed snaps
-    let snaps = client.list_snaps().await?;
+    let snaps = client.list_snaps()?;
     for snap in snaps {
         println!("{}: {}", snap.name, snap.version);
     }
     
     // Search the store
-    let results = client.find_snaps("firefox", None).await?;
+    let results = client.find_snaps("firefox", None)?;
     println!("Found {} results", results.len());
     
     Ok(())
@@ -50,22 +48,21 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::{SnapdClient, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // Install from the stable channel
-    let change_id = client.install_snap("firefox", Some("stable"), None).await?;
+    let change_id = client.install_snap("firefox", Some("stable"), None)?;
     println!("Installation started: change ID {:?}", change_id);
     
     // Monitor the change
     loop {
-        let change = client.get_change(change_id).await?;
+        let change = client.get_change(change_id)?;
         println!("Status: {:?}", change.status);
         if change.ready {
             break;
         }
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
     
     Ok(())
@@ -77,12 +74,11 @@ async fn main() -> Result<()> {
 ```rust
 use snapd_rs_artie::{SnapdClient, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let client = SnapdClient::new();
     
     // List all interface connections
-    let connections = client.list_connections(None, None).await?;
+    let connections = client.list_connections(None, None)?;
     for plug in connections.plugs {
         println!("Plug: {}:{}", plug.snap, plug.plug);
     }
@@ -90,7 +86,7 @@ async fn main() -> Result<()> {
     // Connect an interface
     let change_id = client
         .connect_interface("my-snap", "home", None, None)
-        .await?;
+        ?;
     println!("Connection started: change ID {:?}", change_id);
     
     Ok(())

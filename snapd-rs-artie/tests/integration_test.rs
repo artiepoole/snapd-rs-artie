@@ -8,12 +8,12 @@ mod mock_snapd;
 use snapd_rs_artie::SnapdClient;
 
 /// Test listing snaps - with mock snapd
-#[tokio::test]
-async fn test_list_snaps() {
+#[test]
+fn test_list_snaps() {
     let mock = mock_snapd::MockSnapd::start().expect("Failed to start mock snapd");
     let client = SnapdClient::with_socket(mock.socket_path().to_string_lossy().to_string());
 
-    let result = client.list_snaps().await;
+    let result = client.list_snaps();
     assert!(result.is_ok(), "list_snaps failed: {:?}", result.err());
 
     let snaps = result.unwrap();
@@ -22,12 +22,12 @@ async fn test_list_snaps() {
 }
 
 /// Test system info - with mock snapd
-#[tokio::test]
-async fn test_system_info() {
+#[test]
+fn test_system_info() {
     let mock = mock_snapd::MockSnapd::start().expect("Failed to start mock snapd");
     let client = SnapdClient::with_socket(mock.socket_path().to_string_lossy().to_string());
 
-    let result = client.get_system_info().await;
+    let result = client.get_system_info();
     assert!(result.is_ok(), "get_system_info failed: {:?}", result.err());
 
     let info = result.unwrap();
@@ -35,12 +35,12 @@ async fn test_system_info() {
 }
 
 /// Test app listing - with mock snapd
-#[tokio::test]
-async fn test_list_apps() {
+#[test]
+fn test_list_apps() {
     let mock = mock_snapd::MockSnapd::start().expect("Failed to start mock snapd");
     let client = SnapdClient::with_socket(mock.socket_path().to_string_lossy().to_string());
 
-    let result = client.list_apps().await;
+    let result = client.list_apps();
     assert!(result.is_ok(), "list_apps failed: {:?}", result.err());
 
     println!("✓ list_apps: endpoint accessible");
