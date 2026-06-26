@@ -27,9 +27,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Run tests
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo test --lib --test '*' --verbose
         continue-on-error: ${{ matrix.rust == 'beta' }}
   integration-tests:
@@ -40,13 +40,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Run integration tests
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo test --test integration_tests -- --nocapture --test-threads=1
       - name: Display test output
         if: failure()
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo test --test integration_tests -- --nocapture --test-threads=1 2>&1
   lint:
     name: Formatting & Linting
@@ -58,12 +58,12 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Check formatting
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo fmt -- --check
       - name: Run clippy lints
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo clippy --all-targets --all-features 2>&1 || true
   coverage:
     name: Code Coverage
@@ -73,16 +73,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Install tarpaulin
         run: cargo install cargo-tarpaulin
       - name: Generate coverage
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo tarpaulin --out Xml --exclude-files tests/ --timeout 300
       - name: Upload to codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./snapd-rs/cobertura.xml
+          files: ./snapd-rs-artie/cobertura.xml
           fail_ci_if_error: false
           verbose: true
   build-check:
@@ -100,9 +100,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Check compilation
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo check --all-features --verbose
         continue-on-error: ${{ matrix.rust == 'nightly' }}
   docs:
@@ -113,9 +113,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
       - name: Generate documentation
-        working-directory: snapd-rs
+        working-directory: snapd-rs-artie
         run: cargo doc --no-deps --verbose
         env:
           RUSTDOCFLAGS: -D warnings
