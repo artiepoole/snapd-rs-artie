@@ -28,7 +28,7 @@ jobs:
       - name: Cache Rust artifacts
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: snapd-rs
+          workspaces: snapd-rs-artie
           prefix-key: v0-rust
           add-job-id-key: true
       - name: Run unit tests
