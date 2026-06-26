@@ -1,5 +1,10 @@
 # snapd-rs-artie
 
+[![Crates.io](https://img.shields.io/crates/v/snapd-rs-artie.svg)](https://crates.io/crates/snapd-rs-artie)
+[![Documentation](https://docs.rs/snapd-rs-artie/badge.svg)](https://docs.rs/snapd-rs-artie)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+
 A Vibe coded PoC of unofficial Rust bindings for the snapd API (for interacting with the Ubuntu/Canonical) snap store. This allows applications in Rust to talk directly to [snapd](https://snapcraft.io/docs/snapd-api) without writing their own API layer.
 
 This library provides type-safe, async/await bindings to communicate with the snapd daemon over Unix sockets, allowing Rust applications to manage snaps, interfaces, changes, and more without writing their own API layer.
